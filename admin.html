@@ -1,0 +1,1486 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>لوحة تحكم AI Expert — إدارة الاشتراكات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@600;700;800&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#F4F6F8;
+    --surface:#FFFFFF;
+    --surface-2:#EDF1F5;
+    --ink:#122334;
+    --ink-2:#3D5064;
+    --muted:#71808F;
+    --line:#DFE6ED;
+    --line-strong:#C9D4DF;
+    --primary:#1D5FD1;
+    --primary-dark:#174DA9;
+    --primary-soft:#E7EFFC;
+    --navy:#0C2233;
+    --green:#178A4C;
+    --green-soft:#E4F4EA;
+    --red:#C62F3B;
+    --red-soft:#FBEAEA;
+    --amber:#9A6A00;
+    --amber-soft:#FBF1D7;
+    --shadow:0 10px 30px rgba(12,34,51,.08);
+    --shadow-lg:0 24px 60px rgba(12,34,51,.18);
+    color-scheme:light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0B141C;
+      --surface:#13202C;
+      --surface-2:#1A2A39;
+      --ink:#EAF1F7;
+      --ink-2:#B9C9D7;
+      --muted:#8496A6;
+      --line:#24384A;
+      --line-strong:#33506A;
+      --primary:#4C8DFF;
+      --primary-dark:#6FA3FF;
+      --primary-soft:#17335C;
+      --navy:#081521;
+      --green:#3FBF74;
+      --green-soft:#143325;
+      --red:#F06874;
+      --red-soft:#3B1D22;
+      --amber:#E3B341;
+      --amber-soft:#38300F;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --shadow-lg:0 24px 60px rgba(0,0,0,.5);
+      color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"IBM Plex Sans Arabic", system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:"Cairo","IBM Plex Sans Arabic",sans-serif;margin:0;line-height:1.35}
+  button{font-family:inherit;cursor:pointer}
+  input,select,textarea{font-family:inherit;font-size:15px;color:var(--ink)}
+  :focus-visible{outline:3px solid rgba(29,95,209,.35);outline-offset:2px}
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    min-height:44px;padding:10px 20px;border-radius:10px;border:1px solid transparent;
+    font-size:15px;font-weight:600;line-height:1.2;transition:background .15s,border-color .15s,transform .05s;
+    white-space:nowrap;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn-primary{background:var(--primary);color:#fff}
+  .btn-primary:hover:not(:disabled){background:var(--primary-dark)}
+  .btn-ghost{background:var(--surface);border-color:var(--line-strong);color:var(--ink-2)}
+  .btn-ghost:hover:not(:disabled){border-color:var(--muted)}
+  .btn-danger{background:var(--surface);border-color:var(--line-strong);color:var(--red)}
+  .btn-danger:hover:not(:disabled){background:var(--red-soft);border-color:var(--red)}
+  .btn-danger-solid{background:var(--red);color:#fff}
+  .btn-danger-solid:hover:not(:disabled){filter:brightness(1.08)}
+  .btn-sm{min-height:40px;padding:8px 16px;font-size:14px}
+  .btn-block{width:100%}
+
+  /* ---------- Fields ---------- */
+  .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .field label{font-size:13.5px;font-weight:600;color:var(--ink-2)}
+  .field .hint{font-size:12.5px;color:var(--muted);font-weight:400}
+  .input,.select,textarea.input{
+    width:100%;min-height:44px;padding:10px 12px;border:1px solid var(--line-strong);
+    border-radius:10px;background:var(--surface);line-height:1.5;
+  }
+  textarea.input{min-height:96px;resize:vertical}
+  .input::placeholder{color:var(--muted)}
+  .input:focus,.select:focus,textarea.input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(29,95,209,.18)}
+
+  /* ---------- Messages ---------- */
+  .msg{display:none;border-radius:10px;padding:12px 16px;font-size:14.5px;font-weight:500;border:1px solid}
+  .msg.show{display:block}
+  .msg-error{background:var(--red-soft);border-color:var(--red);color:var(--red)}
+  .msg-success{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+  .msg-info{background:var(--primary-soft);border-color:var(--primary);color:var(--primary)}
+
+  /* ---------- Auth ---------- */
+  .auth-wrap{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px 16px}
+  .auth-card{
+    width:100%;max-width:430px;background:var(--surface);border:1px solid var(--line);
+    border-radius:18px;box-shadow:var(--shadow);padding:34px 30px 30px;
+  }
+  .auth-brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+  .auth-mark{
+    width:48px;height:48px;border-radius:12px;background:var(--navy);color:#fff;flex:none;
+    display:flex;align-items:center;justify-content:center;font-family:"Cairo",sans-serif;font-weight:800;font-size:19px;
+  }
+  .auth-brand h1{font-size:21px}
+  .auth-brand p{margin:0;font-size:13px;color:var(--muted)}
+  .auth-sub{color:var(--ink-2);font-size:14.5px;margin:14px 0 20px}
+  .auth-tabs{display:flex;background:var(--surface-2);border-radius:12px;padding:4px;gap:4px;margin-bottom:22px}
+  .auth-tabs button{
+    flex:1;min-height:42px;border:0;border-radius:9px;background:transparent;color:var(--ink-2);
+    font-size:14.5px;font-weight:600;padding:8px 6px;
+  }
+  .auth-tabs button.active{background:var(--surface);color:var(--ink);box-shadow:0 2px 8px rgba(12,34,51,.12)}
+  .auth-form{display:flex;flex-direction:column;gap:16px}
+  .auth-note{font-size:13px;color:var(--muted);text-align:center;margin:16px 0 0}
+
+  /* ---------- Admin layout ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:40;background:var(--navy);color:#fff;
+    box-shadow:0 4px 18px rgba(8,21,33,.25);
+  }
+  .topbar-in{
+    max-width:1060px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  }
+  .topbar .brand{display:flex;align-items:center;gap:11px;margin-inline-end:auto}
+  .topbar .mark{
+    width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.12);flex:none;
+    display:flex;align-items:center;justify-content:center;font-family:"Cairo",sans-serif;font-weight:800;font-size:16px;
+  }
+  .topbar h1{font-size:18px;color:#fff}
+  .topbar .who{font-size:12.5px;color:rgba(255,255,255,.65);direction:ltr;text-align:left}
+  .topbar .btn-ghost{background:transparent;border-color:rgba(255,255,255,.35);color:#fff}
+  .topbar .btn-ghost:hover{border-color:#fff}
+  .topbar .btn-add{background:#fff;color:var(--navy);border-color:#fff}
+  .topbar .btn-add:hover{background:var(--primary-soft)}
+
+  .page{max-width:1060px;margin:0 auto;padding:26px 20px 70px}
+  .stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+  .stat{
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;
+    padding:12px 18px;display:flex;align-items:baseline;gap:9px;min-height:52px;
+  }
+  .stat b{font-family:"Cairo",sans-serif;font-size:21px;line-height:1}
+  .stat span{font-size:13.5px;color:var(--muted)}
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+  .toolbar .search{flex:1 1 260px;position:relative}
+  .toolbar .search input{padding-inline-start:38px}
+  .toolbar .search svg{position:absolute;inset-inline-start:12px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+  .page-msg{margin-bottom:18px}
+
+  /* ---------- Subscription cards ---------- */
+  .cards{display:flex;flex-direction:column;gap:22px}
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:16px;
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .card.flash{animation:flash 1.6s ease}
+  @keyframes flash{0%{box-shadow:0 0 0 4px rgba(23,138,76,.55)}100%{box-shadow:var(--shadow)}}
+  @media (prefers-reduced-motion: reduce){.card.flash{animation:none}}
+  .card-head{
+    display:flex;align-items:center;gap:14px;padding:18px 22px;flex-wrap:wrap;
+    border-bottom:1px solid var(--line);
+  }
+  .card-icon{
+    width:52px;height:52px;border-radius:13px;flex:none;color:#fff;font-size:24px;
+    display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .card-title{min-width:0;margin-inline-end:auto}
+  .card-title h2{font-size:19px;overflow-wrap:anywhere}
+  .card-title p{margin:2px 0 0;font-size:13.5px;color:var(--muted)}
+  .card-price{text-align:end}
+  .card-price .now{font-family:"Cairo",sans-serif;font-weight:800;font-size:21px;line-height:1.2}
+  .card-price .was{font-size:13px;color:var(--muted);text-decoration:line-through;margin-inline-start:6px}
+  .card-price .per{font-size:13px;color:var(--muted)}
+  .badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:5px}
+  .badge{font-size:12px;font-weight:600;border-radius:999px;padding:2px 10px;line-height:1.7}
+  .badge-on{background:var(--green-soft);color:var(--green)}
+  .badge-off{background:var(--surface-2);color:var(--muted)}
+  .badge-feat{background:var(--amber-soft);color:var(--amber)}
+
+  .card-body{padding:20px 22px 22px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
+  .grid .full{grid-column:1 / -1}
+  .color-row{display:flex;gap:10px;align-items:stretch}
+  .color-row input[type="color"]{
+    width:52px;min-height:44px;padding:4px;border:1px solid var(--line-strong);border-radius:10px;background:var(--surface);cursor:pointer;flex:none;
+  }
+  .color-row .input{flex:1;direction:ltr;text-align:left}
+
+  .toggles{display:flex;gap:14px;flex-wrap:wrap}
+  .toggle{
+    display:flex;align-items:center;gap:11px;background:var(--surface-2);border:1px solid var(--line);
+    border-radius:12px;padding:10px 14px;min-height:48px;cursor:pointer;flex:1 1 180px;
+  }
+  .toggle input{position:absolute;opacity:0;width:1px;height:1px}
+  .toggle .track{
+    width:46px;height:26px;border-radius:999px;background:var(--line-strong);flex:none;position:relative;transition:background .18s;
+  }
+  .toggle .track::after{
+    content:"";position:absolute;top:3px;inset-inline-start:3px;width:20px;height:20px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3);transition:transform .18s;
+  }
+  .toggle input:checked + .track{background:var(--green)}
+  .toggle input:checked + .track::after{transform:translateX(-20px)}
+  .toggle input:focus-visible + .track{outline:3px solid rgba(29,95,209,.4);outline-offset:2px}
+  .toggle .t-label{font-size:14.5px;font-weight:600}
+  .toggle .t-state{font-size:12.5px;color:var(--muted);display:block;font-weight:400}
+
+  .card-actions{
+    display:flex;gap:12px;flex-wrap:wrap;align-items:center;
+    margin-top:22px;padding-top:18px;border-top:1px dashed var(--line-strong);
+  }
+  .card-actions .spacer{flex:1}
+  .card-actions .saved-at{font-size:12.5px;color:var(--muted)}
+
+  .empty{
+    background:var(--surface);border:1px dashed var(--line-strong);border-radius:16px;
+    padding:44px 24px;text-align:center;color:var(--ink-2);
+  }
+  .empty h2{font-size:19px;margin-bottom:6px;color:var(--ink)}
+  .empty p{margin:0 0 18px;font-size:14.5px}
+  .loading{text-align:center;padding:56px 20px;color:var(--muted);font-size:15px}
+  .spinner{
+    width:34px;height:34px;border-radius:50%;margin:0 auto 14px;
+    border:3.5px solid var(--line);border-top-color:var(--primary);animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){.spinner{animation-duration:2.4s}}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed;bottom:22px;inset-inline:0;margin:0 auto;width:fit-content;max-width:calc(100vw - 32px);
+    background:var(--navy);color:#fff;border-radius:12px;padding:13px 22px;font-size:15px;font-weight:600;
+    box-shadow:var(--shadow-lg);z-index:90;opacity:0;transform:translateY(14px);pointer-events:none;
+    transition:opacity .25s,transform .25s;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateY(0)}
+  .toast.err{background:var(--red)}
+
+  /* ---------- Modal ---------- */
+  .modal-back{
+    position:fixed;inset:0;background:rgba(6,17,27,.55);z-index:80;display:none;
+    align-items:center;justify-content:center;padding:18px;
+  }
+  .modal-back.open{display:flex}
+  .modal{
+    background:var(--surface);border-radius:16px;box-shadow:var(--shadow-lg);
+    width:100%;max-width:420px;padding:28px 26px 24px;
+  }
+  .modal h2{font-size:19px;margin-bottom:8px}
+  .modal p{margin:0 0 22px;color:var(--ink-2);font-size:15px}
+  .modal p b{color:var(--ink)}
+  .modal-actions{display:flex;gap:12px;flex-wrap:wrap}
+  .modal-actions .btn{flex:1}
+
+  /* ---------- Tabs ---------- */
+  .review-form{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:20px 22px;margin-bottom:22px}
+  .review-form h2{margin:0 0 14px;font-size:19px}
+  .rf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px}
+  .rf-grid .field.full{grid-column:1/-1}
+  .review-card-body{padding:16px 22px}
+  .review-stars{color:var(--amber);letter-spacing:2px;font-size:17px}
+  .review-card-text{margin:8px 0;font-size:15px}
+  .review-who{color:var(--muted);font-size:14px}
+  .tabs{display:flex;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;margin-bottom:22px}
+  .tabs button{flex:1;min-height:46px;border:0;border-radius:9px;background:transparent;color:var(--ink-2);font-size:15.5px;font-weight:700;padding:9px 8px;font-family:"Cairo","IBM Plex Sans Arabic",sans-serif}
+  .tabs button.active{background:var(--surface);color:var(--ink);box-shadow:0 2px 8px rgba(12,34,51,.12)}
+  .tabs button .tab-count{display:inline-block;background:var(--primary-soft);color:var(--primary);border-radius:999px;padding:0 9px;font-size:12.5px;line-height:1.8;margin-inline-start:6px;font-family:"IBM Plex Sans Arabic",sans-serif}
+  .tabs button.active .tab-count{background:var(--primary);color:#fff}
+
+  /* ---------- Analytics ---------- */
+  .analytics{margin-bottom:26px}
+  .analytics h2,.orders-head h2{font-size:19px;margin-bottom:14px}
+  .analytics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+  .analytics-grid .stat{flex-direction:column;align-items:flex-start;gap:2px;padding:16px 18px}
+  .analytics-grid .stat b{font-size:26px}
+  .analytics-grid .stat .stat-sub{font-size:12.5px;color:var(--muted)}
+  .breakdowns{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .breakdown{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .breakdown h3{font-size:15px;margin-bottom:10px}
+  .breakdown ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .breakdown li{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink-2)}
+  .breakdown li .b-name{overflow-wrap:anywhere}
+  .breakdown li .b-count{margin-inline-start:auto;background:var(--surface-2);border-radius:999px;padding:0 10px;font-weight:700;color:var(--ink);font-size:13px;line-height:1.9;flex:none}
+  .breakdown .b-empty{font-size:13.5px;color:var(--muted)}
+
+  /* ---------- Orders ---------- */
+  .orders-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .orders-head h2{margin:0;margin-inline-end:auto}
+  .order-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);overflow:hidden}
+  .order-head{display:flex;align-items:center;gap:14px;padding:16px 22px;flex-wrap:wrap;border-bottom:1px solid var(--line)}
+  .order-title{min-width:0;margin-inline-end:auto}
+  .order-title h3{font-size:18px;overflow-wrap:anywhere}
+  .order-title p{margin:2px 0 0;font-size:13px;color:var(--muted)}
+  .order-price{font-family:"Cairo",sans-serif;font-weight:800;font-size:20px;white-space:nowrap}
+  .order-body{padding:16px 22px 18px}
+  .order-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px 22px;margin-bottom:16px}
+  .order-meta .m-item{font-size:14.5px;color:var(--ink-2);overflow-wrap:anywhere}
+  .order-meta .m-item b{color:var(--ink);font-weight:600}
+  .order-meta a{color:var(--primary);text-decoration:none;font-weight:600}
+  .order-meta a:hover{text-decoration:underline}
+  .order-meta .ltr{direction:ltr;unicode-bidi:embed}
+  .order-notes{background:var(--surface-2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--ink-2);margin-bottom:16px;overflow-wrap:anywhere}
+  .order-notes b{color:var(--ink)}
+  .order-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+  .order-actions .field{flex:0 1 240px}
+  .status-new{border-color:var(--primary) !important}
+  .status-active{border-color:var(--amber) !important}
+  .status-paid{border-color:var(--green) !important}
+  .status-cancelled{border-color:var(--red) !important}
+
+  .hidden{display:none !important}
+
+  @media (max-width:860px){
+    .analytics-grid{grid-template-columns:1fr 1fr}
+    .breakdowns{grid-template-columns:1fr}
+  }
+  @media (max-width:640px){
+    .order-meta{grid-template-columns:1fr}
+    .order-head,.order-body{padding-inline:16px}
+    .order-actions .field{flex:1 1 100%}
+  }
+
+  @media (max-width:640px){
+    .grid{grid-template-columns:1fr}
+    .auth-card{padding:28px 22px 24px}
+    .card-head,.card-body{padding-inline:16px}
+    .card-price{text-align:start;width:100%}
+    .topbar-in{padding:12px 16px}
+    .page{padding:20px 14px 60px}
+    .topbar .who{display:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===================== AUTH ===================== -->
+<div id="authView" class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-mark">AI</div>
+      <div>
+        <h1>لوحة تحكم AI Expert</h1>
+        <p>إدارة الاشتراكات والأسعار</p>
+      </div>
+    </div>
+    <p class="auth-sub">سجّل دخولك بحساب الأدمين عشان تعدّل الاشتراكات — أي تعديل تحفظه هنا يظهر فوراً في المتجر.</p>
+
+    <div class="auth-tabs" role="tablist" aria-label="وضع الدخول">
+      <button type="button" id="tabSignin" class="active">تسجيل الدخول</button>
+      <button type="button" id="tabSignup">إنشاء حساب الأدمين</button>
+    </div>
+
+    <div id="authMsg" class="msg" role="alert"></div>
+
+    <form id="authForm" class="auth-form" novalidate style="margin-top:18px">
+      <div class="field">
+        <label for="authEmail">البريد الإلكتروني</label>
+        <input class="input" type="email" id="authEmail" name="email" dir="ltr" style="text-align:left" autocomplete="email" placeholder="admin@example.com" required />
+      </div>
+      <div class="field">
+        <label for="authPassword">كلمة السر</label>
+        <input class="input" type="password" id="authPassword" name="password" dir="ltr" style="text-align:left" autocomplete="current-password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="authSubmit">تسجيل الدخول</button>
+    </form>
+    <p class="auth-note" id="authNote">وضع «إنشاء حساب الأدمين» يُستخدم أول مرة فقط لإنشاء الحساب، وبعدها سجّل دخولك بنفس البيانات.</p>
+  </div>
+</div>
+
+<!-- ===================== ADMIN ===================== -->
+<div id="adminView" class="hidden">
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="brand">
+        <div class="mark">AI</div>
+        <div>
+          <h1>إدارة اشتراكات AI Expert</h1>
+          <div class="who" id="userEmail"></div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-add" id="addBtn">＋ إضافة اشتراك جديد</button>
+      <button type="button" class="btn btn-ghost" id="logoutBtn">تسجيل الخروج</button>
+    </div>
+  </header>
+
+  <main class="page">
+    <nav class="tabs" aria-label="أقسام لوحة التحكم">
+      <button type="button" id="tabSubs" class="active">الاشتراكات</button>
+      <button type="button" id="tabOrders">الطلبات والتحليلات<span class="tab-count hidden" id="ordersTabCount"></span></button>
+      <button type="button" id="tabReviews">التقييمات<span class="tab-count hidden" id="reviewsTabCount"></span></button>
+    </nav>
+
+    <div id="subsSection">
+    <div class="stats" id="statsRow"></div>
+
+    <div class="toolbar">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+        <input class="input" type="search" id="searchInput" placeholder="ابحث باسم الاشتراك أو التصنيف…" aria-label="بحث في الاشتراكات" />
+      </div>
+      <button type="button" class="btn btn-ghost" id="refreshBtn">↻ إعادة تحميل القائمة</button>
+    </div>
+
+    <div id="pageMsg" class="msg page-msg" role="alert"></div>
+
+    <div id="listLoading" class="loading hidden"><div class="spinner"></div>جارٍ تحميل الاشتراكات من قاعدة البيانات…</div>
+    <div id="cardsWrap" class="cards"></div>
+    <div id="emptyState" class="empty hidden">
+      <h2>لا توجد اشتراكات بعد</h2>
+      <p>أضف أول اشتراك وسيظهر هنا وفي المتجر فوراً.</p>
+      <button type="button" class="btn btn-primary" id="addBtnEmpty">＋ إضافة اشتراك جديد</button>
+    </div>
+    <div id="noResults" class="empty hidden">
+      <h2>لا نتائج مطابقة</h2>
+      <p>جرّب كلمة بحث مختلفة.</p>
+    </div>
+    </div><!-- /subsSection -->
+
+    <div id="ordersSection" class="hidden">
+      <section class="analytics" aria-label="تحليلات الطلبات">
+        <h2>التحليلات</h2>
+        <div class="analytics-grid" id="analyticsGrid"></div>
+        <h2>زوار المتجر</h2>
+        <div class="analytics-grid" id="visitorsGrid"></div>
+        <div class="breakdowns">
+          <div class="breakdown"><h3>الطلبات لكل اشتراك</h3><div id="breakSubs"></div></div>
+          <div class="breakdown"><h3>الطلبات لكل طريقة دفع</h3><div id="breakPayments"></div></div>
+          <div class="breakdown"><h3>الطلبات لكل حالة</h3><div id="breakStatuses"></div></div>
+        </div>
+      </section>
+
+      <div class="orders-head">
+        <h2>الطلبات</h2>
+        <button type="button" class="btn btn-ghost btn-sm" id="refreshOrdersBtn">↻ تحديث الطلبات</button>
+      </div>
+      <div id="ordersMsg" class="msg page-msg" role="alert"></div>
+      <div id="ordersLoading" class="loading hidden"><div class="spinner"></div>جارٍ تحميل الطلبات من قاعدة البيانات…</div>
+      <div id="ordersWrap" class="cards"></div>
+      <div id="ordersEmpty" class="empty hidden">
+        <h2>لا توجد طلبات بعد</h2>
+        <p>أي طلب جديد يرسله عميل من المتجر سيظهر هنا فور وصوله.</p>
+      </div>
+    </div>
+
+    <div id="reviewsSection" class="hidden">
+      <form class="review-form" id="reviewForm">
+        <h2>إضافة تقييم جديد</h2>
+        <div class="rf-grid">
+          <div class="field"><label for="rvName">اسم العميل *</label><input class="input" id="rvName" type="text" placeholder="مثال: أحمد محمد" /></div>
+          <div class="field"><label for="rvCountry">الدولة</label><input class="input" id="rvCountry" type="text" placeholder="مثال: مصر" /></div>
+          <div class="field"><label for="rvProduct">الاشتراك</label><input class="input" id="rvProduct" type="text" list="rvProducts" placeholder="مثال: ChatGPT Plus" /><datalist id="rvProducts"></datalist></div>
+          <div class="field"><label for="rvStars">التقييم بالنجوم</label><select class="select" id="rvStars"><option value="5">★★★★★ (5)</option><option value="4">★★★★☆ (4)</option><option value="3">★★★☆☆ (3)</option><option value="2">★★☆☆☆ (2)</option><option value="1">★☆☆☆☆ (1)</option></select></div>
+          <div class="field full"><label for="rvText">نص التقييم *</label><textarea class="input" id="rvText" placeholder="اكتب رأي العميل في الخدمة…"></textarea></div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="rvAddBtn">＋ إضافة التقييم</button>
+      </form>
+
+      <div class="orders-head">
+        <h2>التقييمات الحالية</h2>
+        <button type="button" class="btn btn-ghost btn-sm" id="refreshReviewsBtn">↻ تحديث التقييمات</button>
+      </div>
+      <div id="reviewsLoading" class="loading hidden"><div class="spinner"></div>جارٍ تحميل التقييمات من قاعدة البيانات…</div>
+      <div id="reviewsWrap" class="cards"></div>
+      <div id="reviewsEmpty" class="empty hidden">
+        <h2>لا توجد تقييمات بعد</h2>
+        <p>أضف أول تقييم من النموذج بالأعلى وسيظهر في المتجر فوراً.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ===================== DELETE MODAL ===================== -->
+<div class="modal-back" id="deleteModal" role="dialog" aria-modal="true" aria-labelledby="deleteTitle">
+  <div class="modal">
+    <h2 id="deleteTitle">حذف الاشتراك؟</h2>
+    <p>سيتم حذف <b id="deleteName"></b> نهائياً من قاعدة البيانات، وسيختفي من المتجر فوراً. لا يمكن التراجع عن هذا الإجراء.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="cancelDelete">إلغاء</button>
+      <button type="button" class="btn btn-danger-solid" id="confirmDelete">حذف نهائي</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DELETE ORDER MODAL ===================== -->
+<div class="modal-back" id="deleteOrderModal" role="dialog" aria-modal="true" aria-labelledby="deleteOrderTitle">
+  <div class="modal">
+    <h2 id="deleteOrderTitle">حذف الطلب؟</h2>
+    <p>سيتم حذف طلب <b id="deleteOrderName"></b> نهائياً من قاعدة البيانات. لا يمكن التراجع عن هذا الإجراء.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="cancelDeleteOrder">إلغاء</button>
+      <button type="button" class="btn btn-danger-solid" id="confirmDeleteOrder">حذف نهائي</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== DELETE REVIEW MODAL ===================== -->
+<div class="modal-back" id="deleteReviewModal" role="dialog" aria-modal="true" aria-labelledby="deleteReviewTitle">
+  <div class="modal">
+    <h2 id="deleteReviewTitle">حذف التقييم؟</h2>
+    <p>سيتم حذف تقييم <b id="deleteReviewName"></b> نهائياً من قاعدة البيانات، وسيختفي من المتجر فوراً. لا يمكن التراجع عن هذا الإجراء.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="cancelDeleteReview">إلغاء</button>
+      <button type="button" class="btn btn-danger-solid" id="confirmDeleteReview">حذف نهائي</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<datalist id="categoryList">
+  <option value="ذكاء اصطناعي"></option>
+  <option value="تصميم"></option>
+  <option value="تعليم"></option>
+  <option value="ترفيه"></option>
+  <option value="إنتاجية"></option>
+  <option value="برمجة"></option>
+</datalist>
+<datalist id="currencyList">
+  <option value="ج.م"></option>
+  <option value="$"></option>
+  <option value="ر.س"></option>
+  <option value="د.إ"></option>
+  <option value="SDG"></option>
+</datalist>
+
+<script>
+(function(){
+  "use strict";
+
+  var SUPABASE_URL = "https://rbmfdxfypfmsfgeuolmb.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJibWZkeGZ5cGZtc2ZnZXVvbG1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMTI5MjcsImV4cCI6MjExMDc4ODkyN30.90sTMecDO_pZ-YsVkGvAPD6hbC4Newp9MW5LZNqxbnU";
+
+  /* If the Supabase library itself failed to load (offline / CDN issue),
+     keep the login screen visible with a clear Arabic error instead of a blank page. */
+  if (!window.supabase || !window.supabase.createClient){
+    var failMsg = document.getElementById("authMsg");
+    failMsg.textContent = "تعذّر تحميل مكتبة الاتصال بقاعدة البيانات — تحقق من اتصال الإنترنت ثم أعد تحميل الصفحة.";
+    failMsg.classList.add("show", "msg-error");
+    var failBtn = document.getElementById("authSubmit");
+    failBtn.disabled = true;
+    failBtn.textContent = "أعد تحميل الصفحة";
+    failBtn.disabled = false;
+    failBtn.addEventListener("click", function(ev){ ev.preventDefault(); location.reload(); });
+    document.getElementById("authForm").addEventListener("submit", function(ev){ ev.preventDefault(); location.reload(); });
+    var tIn = document.getElementById("tabSignin"), tUp = document.getElementById("tabSignup");
+    tIn.addEventListener("click", function(){ tIn.classList.add("active"); tUp.classList.remove("active"); });
+    tUp.addEventListener("click", function(){ tUp.classList.add("active"); tIn.classList.remove("active"); });
+    return;
+  }
+
+  var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  /* ---------- Elements ---------- */
+  function $(id){ return document.getElementById(id); }
+  var authView = $("authView"), adminView = $("adminView");
+  var authMsg = $("authMsg"), pageMsg = $("pageMsg");
+  var authForm = $("authForm"), authEmail = $("authEmail"), authPassword = $("authPassword");
+  var authSubmit = $("authSubmit"), tabSignin = $("tabSignin"), tabSignup = $("tabSignup"), authNote = $("authNote");
+  var cardsWrap = $("cardsWrap"), listLoading = $("listLoading"), emptyState = $("emptyState"), noResults = $("noResults");
+  var statsRow = $("statsRow"), searchInput = $("searchInput"), toastEl = $("toast");
+  var deleteModal = $("deleteModal"), deleteName = $("deleteName");
+  var tabSubs = $("tabSubs"), tabOrders = $("tabOrders"), tabReviews = $("tabReviews");
+  var subsSection = $("subsSection"), ordersSection = $("ordersSection"), reviewsSection = $("reviewsSection");
+  var ordersMsg = $("ordersMsg"), ordersLoading = $("ordersLoading"), ordersWrap = $("ordersWrap"), ordersEmpty = $("ordersEmpty");
+  var analyticsGrid = $("analyticsGrid"), ordersTabCount = $("ordersTabCount");
+  var deleteOrderModal = $("deleteOrderModal"), deleteOrderName = $("deleteOrderName");
+
+  var mode = "signin"; // or "signup"
+  var subscriptions = [];
+  var orders = [];
+  var ordersLoaded = false;
+  var pendingDeleteId = null;
+  var pendingDeleteOrderId = null;
+  var toastTimer = null;
+
+  /* ---------- Helpers ---------- */
+  function esc(s){
+    return String(s == null ? "" : s)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+  }
+  function showMsg(el, text, kind){
+    el.textContent = text;
+    el.className = el.className.replace(/\bmsg-(error|success|info)\b/g,"").trim() + " show msg-" + kind;
+    if (el === pageMsg) el.classList.add("page-msg");
+    el.classList.add("show");
+  }
+  function hideMsg(el){ el.classList.remove("show"); el.textContent = ""; }
+  function toast(text, isErr){
+    toastEl.textContent = text;
+    toastEl.classList.toggle("err", !!isErr);
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 3400);
+  }
+  function translateError(err){
+    var m = (err && err.message) ? err.message : String(err || "حدث خطأ غير متوقع");
+    if (/invalid login credentials/i.test(m)) return "بيانات الدخول غير صحيحة — تأكد من الإيميل وكلمة السر.";
+    if (/already registered|already exists/i.test(m)) return "هذا الإيميل مسجل بالفعل — جرّب «تسجيل الدخول» بدلاً من إنشاء حساب.";
+    if (/password should be at least/i.test(m)) return "كلمة السر قصيرة — لازم تكون 6 حروف على الأقل (ويُفضّل أطول).";
+    if (/invalid email|unable to validate email/i.test(m)) return "صيغة الإيميل غير صحيحة — راجع الإيميل وحاول مرة أخرى.";
+    if (/email not confirmed/i.test(m)) return "الإيميل لم يتم تأكيده بعد — افتح إيميلك واضغط رابط التأكيد، ثم سجّل دخولك.";
+    if (/rate limit|too many requests/i.test(m)) return "محاولات كثيرة في وقت قصير — انتظر دقيقة ثم حاول مرة أخرى.";
+    if (/failed to fetch|network/i.test(m)) return "تعذّر الاتصال بقاعدة البيانات — تحقق من الإنترنت وحاول مرة أخرى.";
+    if (/row-level security|permission denied|violates/i.test(m)) return "لا توجد صلاحية للكتابة — تأكد أنك مسجل الدخول بحساب الأدمين.";
+    return m;
+  }
+  function featuresToText(f){
+    if (Array.isArray(f)) return f.join("\n");
+    if (typeof f === "string"){
+      try { var p = JSON.parse(f); if (Array.isArray(p)) return p.join("\n"); } catch(e){}
+      return f;
+    }
+    return "";
+  }
+  function textToFeatures(t){
+    return String(t || "").split("\n").map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+  }
+  function fmtPrice(n){
+    if (n === null || n === undefined || n === "") return "—";
+    var num = Number(n);
+    return isNaN(num) ? String(n) : num.toLocaleString("ar-EG");
+  }
+
+  /* ---------- Auth UI ---------- */
+  function setMode(next){
+    mode = next;
+    tabSignin.classList.toggle("active", mode === "signin");
+    tabSignup.classList.toggle("active", mode === "signup");
+    authSubmit.textContent = mode === "signin" ? "تسجيل الدخول" : "إنشاء حساب الأدمين";
+    authPassword.setAttribute("autocomplete", mode === "signin" ? "current-password" : "new-password");
+    authNote.textContent = mode === "signin"
+      ? "ليس لديك حساب بعد؟ اختر «إنشاء حساب الأدمين» من الأعلى — يُستخدم أول مرة فقط."
+      : "بعد إنشاء الحساب قد يصلك إيميل تأكيد — فعّله ثم سجّل دخولك بنفس البيانات.";
+    hideMsg(authMsg);
+  }
+  tabSignin.addEventListener("click", function(){ setMode("signin"); });
+  tabSignup.addEventListener("click", function(){ setMode("signup"); });
+
+  authForm.addEventListener("submit", function(ev){
+    ev.preventDefault();
+    hideMsg(authMsg);
+    var email = authEmail.value.trim();
+    var password = authPassword.value;
+    if (!email || !password){
+      showMsg(authMsg, "من فضلك اكتب الإيميل وكلمة السر.", "error");
+      return;
+    }
+    authSubmit.disabled = true;
+    var original = authSubmit.textContent;
+    authSubmit.textContent = "جارٍ التنفيذ…";
+
+    var promise = mode === "signin"
+      ? sb.auth.signInWithPassword({ email: email, password: password })
+      : sb.auth.signUp({ email: email, password: password });
+
+    promise.then(function(res){
+      authSubmit.disabled = false;
+      authSubmit.textContent = original;
+      if (res.error){
+        showMsg(authMsg, translateError(res.error), "error");
+        return;
+      }
+      if (mode === "signup" && !res.data.session){
+        showMsg(authMsg, "تم إنشاء الحساب بنجاح. إذا وصلك إيميل تأكيد فعّله أولاً، ثم سجّل دخولك بنفس البيانات.", "success");
+        setMode("signin");
+        authEmail.value = email;
+        return;
+      }
+      showMsg(authMsg, mode === "signup" ? "تم إنشاء الحساب وتسجيل الدخول بنجاح." : "تم تسجيل الدخول بنجاح.", "success");
+      // onAuthStateChange / session check will switch the view
+      enterAdmin(res.data.user || (res.data.session && res.data.session.user));
+    }).catch(function(err){
+      authSubmit.disabled = false;
+      authSubmit.textContent = original;
+      showMsg(authMsg, translateError(err), "error");
+    });
+  });
+
+  $("logoutBtn").addEventListener("click", function(){
+    sb.auth.signOut().then(function(){
+      subscriptions = [];
+      orders = [];
+      ordersLoaded = false;
+      cardsWrap.innerHTML = "";
+      ordersWrap.innerHTML = "";
+      switchTab("subs");
+      showAuth();
+      toast("تم تسجيل الخروج.");
+    });
+  });
+
+  var entered = false;
+  function showAuth(){
+    entered = false;
+    adminView.classList.add("hidden");
+    authView.classList.remove("hidden");
+  }
+  function enterAdmin(user){
+    if (user && user.email) $("userEmail").textContent = user.email;
+    authView.classList.add("hidden");
+    adminView.classList.remove("hidden");
+    if (entered) return;
+    entered = true;
+    loadSubscriptions();
+  }
+
+  /* ---------- Data ---------- */
+  function loadSubscriptions(flashId){
+    listLoading.classList.remove("hidden");
+    emptyState.classList.add("hidden");
+    noResults.classList.add("hidden");
+    return sb.from("subscriptions").select("*").order("sort", { ascending: true })
+      .then(function(res){
+        listLoading.classList.add("hidden");
+        if (res.error){
+          showMsg(pageMsg, "تعذّر تحميل الاشتراكات: " + translateError(res.error), "error");
+          return;
+        }
+        subscriptions = res.data || [];
+        renderStats();
+        renderList(flashId);
+      })
+      .catch(function(err){
+        listLoading.classList.add("hidden");
+        showMsg(pageMsg, "تعذّر تحميل الاشتراكات: " + translateError(err), "error");
+      });
+  }
+
+  function renderStats(){
+    var total = subscriptions.length;
+    var avail = subscriptions.filter(function(s){ return s.available; }).length;
+    var feat = subscriptions.filter(function(s){ return s.featured; }).length;
+    statsRow.innerHTML =
+      '<div class="stat"><b>' + total + '</b><span>اشتراك إجمالاً</span></div>' +
+      '<div class="stat"><b>' + avail + '</b><span>متاح للعملاء</span></div>' +
+      '<div class="stat"><b>' + feat + '</b><span>مميز</span></div>';
+  }
+
+  function renderList(flashId){
+    var q = searchInput.value.trim().toLowerCase();
+    var list = subscriptions.filter(function(s){
+      if (!q) return true;
+      return (String(s.name||"").toLowerCase().indexOf(q) > -1) ||
+             (String(s.category||"").toLowerCase().indexOf(q) > -1);
+    });
+    cardsWrap.innerHTML = "";
+    emptyState.classList.toggle("hidden", subscriptions.length !== 0);
+    noResults.classList.toggle("hidden", !(subscriptions.length > 0 && list.length === 0));
+    list.forEach(function(sub){
+      cardsWrap.appendChild(buildCard(sub, sub.id === flashId));
+    });
+    if (flashId){
+      var el = cardsWrap.querySelector('[data-card-id="' + flashId + '"]');
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
+  function buildCard(sub, flash){
+    var card = document.createElement("article");
+    card.className = "card" + (flash ? " flash" : "");
+    card.setAttribute("data-card-id", sub.id);
+
+    var color = sub.color || "#2563EB";
+    var oldPrice = (sub.old_price === null || sub.old_price === undefined) ? "" : sub.old_price;
+    var myIdx = -1;
+    for (var i = 0; i < subscriptions.length; i++){ if (subscriptions[i].id === sub.id){ myIdx = i; break; } }
+    var isFirst = myIdx <= 0;
+    var isLast = (myIdx === -1) || (myIdx >= subscriptions.length - 1);
+
+    card.innerHTML =
+      '<div class="card-head">' +
+        '<div class="card-icon" data-role="iconPrev" style="background:' + esc(color) + '">' + esc(sub.icon || "✦") + '</div>' +
+        '<div class="card-title">' +
+          '<h2 data-role="namePrev">' + esc(sub.name || "بدون اسم") + '</h2>' +
+          '<p>' + esc(sub.category || "") + (sub.category ? " • " : "") + 'ترتيب العرض: ' + esc(sub.sort) + '</p>' +
+          '<div class="badges">' +
+            (sub.available ? '<span class="badge badge-on">متاح</span>' : '<span class="badge badge-off">غير متاح</span>') +
+            (sub.featured ? '<span class="badge badge-feat">★ مميز</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="card-price">' +
+          '<span class="now">' + fmtPrice(sub.price) + ' ' + esc(sub.currency || "") + '</span>' +
+          (oldPrice !== "" ? '<span class="was">' + fmtPrice(oldPrice) + '</span>' : '') +
+          '<div class="per">/ ' + esc(sub.duration || "") + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="grid">' +
+          field("الاسم", '<input class="input" data-f="name" type="text" value="' + esc(sub.name || "") + '" placeholder="اسم الاشتراك" />') +
+          field("التصنيف", '<input class="input" data-f="category" type="text" list="categoryList" value="' + esc(sub.category || "") + '" placeholder="مثال: ذكاء اصطناعي" />') +
+          field("الوصف", '<textarea class="input" data-f="description" rows="3" placeholder="وصف قصير يظهر للعميل في المتجر">' + esc(sub.description || "") + '</textarea>', true) +
+          field("المميزات <span class=\'hint\'>(كل ميزة في سطر مستقل)</span>", '<textarea class="input" data-f="features" rows="5" placeholder="ميزة في كل سطر">' + esc(featuresToText(sub.features)) + '</textarea>', true) +
+          field("السعر", '<input class="input" data-f="price" type="number" min="0" step="any" value="' + esc(sub.price === null || sub.price === undefined ? "" : sub.price) + '" placeholder="0" />') +
+          field("السعر قبل الخصم <span class=\'hint\'>(اختياري — اتركه فارغاً لإخفائه)</span>", '<input class="input" data-f="old_price" type="number" min="0" step="any" value="' + esc(oldPrice) + '" placeholder="بدون خصم" />') +
+          field("العملة", '<input class="input" data-f="currency" type="text" list="currencyList" value="' + esc(sub.currency || "ج.م") + '" placeholder="ج.م" />') +
+          field("المدة", '<select class="select" data-f="duration">' +
+              '<option value="شهري"' + (sub.duration === "شهري" ? " selected" : "") + '>شهري</option>' +
+              '<option value="سنوي"' + (sub.duration === "سنوي" ? " selected" : "") + '>سنوي</option>' +
+              '<option value="مدى الحياة"' + (sub.duration === "مدى الحياة" ? " selected" : "") + '>مدى الحياة</option>' +
+            '</select>') +
+          field("اللون", '<div class="color-row"><input type="color" data-f="colorPicker" value="' + esc(color) + '" aria-label="اختيار اللون" /><input class="input" data-f="color" type="text" value="' + esc(color) + '" placeholder="#2563EB" /></div>') +
+          field("الأيقونة <span class=\'hint\'>(رمز أو إيموجي قصير)</span>", '<input class="input" data-f="icon" type="text" maxlength="4" value="' + esc(sub.icon || "") + '" placeholder="✦" />') +
+          field("الترتيب <span class=\'hint\'>(رقم أصغر = يظهر أولاً)</span>", '<input class="input" data-f="sort" type="number" step="1" value="' + esc(sub.sort === null || sub.sort === undefined ? "" : sub.sort) + '" placeholder="1" />') +
+          '<div class="field full"><label>الحالة</label><div class="toggles">' +
+            '<label class="toggle"><input type="checkbox" data-f="available"' + (sub.available ? " checked" : "") + ' /><span class="track"></span><span><span class="t-label">متاح</span><span class="t-state" data-role="availState">' + (sub.available ? "يظهر للعملاء ويمكن طلبه" : "مخفي عن العملاء حالياً") + '</span></span></label>' +
+            '<label class="toggle"><input type="checkbox" data-f="featured"' + (sub.featured ? " checked" : "") + ' /><span class="track"></span><span><span class="t-label">مميز</span><span class="t-state" data-role="featState">' + (sub.featured ? "يُبرز بشارة «مميز» في المتجر" : "عرض عادي بدون إبراز") + '</span></span></label>' +
+          '</div></div>' +
+        '</div>' +
+        '<div class="card-actions">' +
+          '<button type="button" class="btn btn-ghost" data-act="up"' + (isFirst ? ' disabled' : '') + '>▲ لأعلى</button>' +
+          '<button type="button" class="btn btn-ghost" data-act="down"' + (isLast ? ' disabled' : '') + '>▼ لأسفل</button>' +
+          '<button type="button" class="btn btn-primary" data-act="save">حفظ التعديلات</button>' +
+          '<button type="button" class="btn btn-danger" data-act="delete">حذف الاشتراك</button>' +
+          '<span class="spacer"></span>' +
+          '<span class="saved-at" data-role="savedAt"></span>' +
+        '</div>' +
+      '</div>';
+
+    function field(label, control, full){
+      return '<div class="field' + (full ? " full" : "") + '"><label>' + label + '</label>' + control + '</div>';
+    }
+
+    /* live preview sync */
+    var colorPicker = card.querySelector('[data-f="colorPicker"]');
+    var colorText = card.querySelector('[data-f="color"]');
+    var iconPrev = card.querySelector('[data-role="iconPrev"]');
+    colorPicker.addEventListener("input", function(){
+      colorText.value = colorPicker.value;
+      iconPrev.style.background = colorPicker.value;
+    });
+    colorText.addEventListener("input", function(){
+      if (/^#[0-9a-fA-F]{6}$/.test(colorText.value)) colorPicker.value = colorText.value;
+      iconPrev.style.background = colorText.value || "#2563EB";
+    });
+    card.querySelector('[data-f="icon"]').addEventListener("input", function(e){
+      iconPrev.textContent = e.target.value || "✦";
+    });
+    card.querySelector('[data-f="name"]').addEventListener("input", function(e){
+      card.querySelector('[data-role="namePrev"]').textContent = e.target.value || "بدون اسم";
+    });
+    card.querySelector('[data-f="available"]').addEventListener("change", function(e){
+      card.querySelector('[data-role="availState"]').textContent = e.target.checked ? "يظهر للعملاء ويمكن طلبه" : "مخفي عن العملاء حالياً";
+    });
+    card.querySelector('[data-f="featured"]').addEventListener("change", function(e){
+      card.querySelector('[data-role="featState"]').textContent = e.target.checked ? "يُبرز بشارة «مميز» في المتجر" : "عرض عادي بدون إبراز";
+    });
+
+    card.querySelector('[data-act="save"]').addEventListener("click", function(){ saveCard(card, sub.id); });
+    var upBtn = card.querySelector('[data-act="up"]');
+    var downBtn = card.querySelector('[data-act="down"]');
+    if (upBtn) upBtn.addEventListener("click", function(){ moveCard(sub.id, -1); });
+    if (downBtn) downBtn.addEventListener("click", function(){ moveCard(sub.id, 1); });
+    card.querySelector('[data-act="delete"]').addEventListener("click", function(){
+      pendingDeleteId = sub.id;
+      deleteName.textContent = "«" + (sub.name || "بدون اسم") + "»";
+      deleteModal.classList.add("open");
+    });
+
+    return card;
+  }
+
+  function getVal(card, f){
+    var el = card.querySelector('[data-f="' + f + '"]');
+    return el ? el.value : "";
+  }
+  function getChecked(card, f){
+    var el = card.querySelector('[data-f="' + f + '"]');
+    return el ? el.checked : false;
+  }
+
+  function moveCard(id, dir){
+    var idx = -1;
+    for (var i = 0; i < subscriptions.length; i++){ if (subscriptions[i].id === id){ idx = i; break; } }
+    var j = idx + dir;
+    if (idx < 0 || j < 0 || j >= subscriptions.length) return;
+    var reordered = subscriptions.slice();
+    var tmp = reordered[idx]; reordered[idx] = reordered[j]; reordered[j] = tmp;
+    var updates = [];
+    reordered.forEach(function(s, i){
+      var target = i + 1;
+      if (Number(s.sort) !== target){
+        updates.push(sb.from("subscriptions").update({ sort: target }).eq("id", s.id));
+      }
+    });
+    if (!updates.length){ loadSubscriptions(id); return; }
+    Promise.all(updates).then(function(results){
+      var err = null;
+      results.forEach(function(r){ if (r && r.error && !err) err = r.error; });
+      if (err){ toast("تعذّر تغيير الترتيب: " + translateError(err), true); return; }
+      toast("تم تغيير ترتيب العرض — الترتيب الجديد ظاهر الآن في المتجر.");
+      loadSubscriptions(id);
+    }).catch(function(e){
+      toast("تعذّر تغيير الترتيب: " + translateError(e), true);
+    });
+  }
+
+  function saveCard(card, id){
+    var btn = card.querySelector('[data-act="save"]');
+    var savedAt = card.querySelector('[data-role="savedAt"]');
+    var priceRaw = getVal(card, "price").trim();
+    var oldRaw = getVal(card, "old_price").trim();
+    var sortRaw = getVal(card, "sort").trim();
+
+    var payload = {
+      name: getVal(card, "name").trim(),
+      category: getVal(card, "category").trim(),
+      description: getVal(card, "description").trim(),
+      features: textToFeatures(getVal(card, "features")),
+      price: priceRaw === "" ? 0 : Number(priceRaw),
+      old_price: oldRaw === "" ? null : Number(oldRaw),
+      currency: getVal(card, "currency").trim() || "ج.م",
+      duration: getVal(card, "duration"),
+      color: getVal(card, "color").trim() || "#2563EB",
+      icon: getVal(card, "icon").trim() || "✦",
+      sort: sortRaw === "" ? 99 : parseInt(sortRaw, 10),
+      available: getChecked(card, "available"),
+      featured: getChecked(card, "featured")
+    };
+
+    if (!payload.name){
+      toast("اكتب اسم الاشتراك قبل الحفظ.", true);
+      card.querySelector('[data-f="name"]').focus();
+      return;
+    }
+    if (isNaN(payload.price) || isNaN(payload.sort) || (payload.old_price !== null && isNaN(payload.old_price))){
+      toast("راجع الأرقام: السعر والترتيب لازم يكونوا أرقاماً صحيحة.", true);
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "جارٍ الحفظ…";
+    sb.from("subscriptions").update(payload).eq("id", id)
+      .then(function(res){
+        btn.disabled = false;
+        btn.textContent = "حفظ التعديلات";
+        if (res.error){
+          toast("تعذّر الحفظ: " + translateError(res.error), true);
+          return;
+        }
+        savedAt.textContent = "آخر حفظ: الآن — ظاهر في المتجر";
+        toast("تم حفظ «" + payload.name + "» بنجاح — التعديل ظاهر الآن في المتجر.");
+        loadSubscriptions(id);
+      })
+      .catch(function(err){
+        btn.disabled = false;
+        btn.textContent = "حفظ التعديلات";
+        toast("تعذّر الحفظ: " + translateError(err), true);
+      });
+  }
+
+  /* ---------- Add / Delete / Refresh ---------- */
+  function addSubscription(){
+    var maxSort = subscriptions.reduce(function(m, s){ return Math.max(m, Number(s.sort) || 0); }, 0);
+    var payload = {
+      name: "اشتراك جديد",
+      category: "ذكاء اصطناعي",
+      description: "",
+      features: [],
+      price: 100,
+      old_price: null,
+      currency: "ج.م",
+      duration: "شهري",
+      color: "#2563EB",
+      icon: "✦",
+      sort: maxSort + 1,
+      available: false,
+      featured: false
+    };
+    var btns = [$("addBtn"), $("addBtnEmpty")];
+    btns.forEach(function(b){ if (b) b.disabled = true; });
+    sb.from("subscriptions").insert(payload).select("id").single()
+      .then(function(res){
+        btns.forEach(function(b){ if (b) b.disabled = false; });
+        if (res.error){
+          toast("تعذّرت الإضافة: " + translateError(res.error), true);
+          return;
+        }
+        toast("تمت إضافة اشتراك جديد — عدّل بياناته ثم اضغط «حفظ التعديلات».");
+        loadSubscriptions(res.data && res.data.id);
+      })
+      .catch(function(err){
+        btns.forEach(function(b){ if (b) b.disabled = false; });
+        toast("تعذّرت الإضافة: " + translateError(err), true);
+      });
+  }
+  $("addBtn").addEventListener("click", addSubscription);
+  $("addBtnEmpty").addEventListener("click", addSubscription);
+  $("refreshBtn").addEventListener("click", function(){
+    hideMsg(pageMsg);
+    loadSubscriptions().then(function(){ toast("تم تحديث القائمة من قاعدة البيانات."); });
+  });
+  searchInput.addEventListener("input", function(){ renderList(); });
+
+  $("cancelDelete").addEventListener("click", function(){
+    pendingDeleteId = null;
+    deleteModal.classList.remove("open");
+  });
+  deleteModal.addEventListener("click", function(e){
+    if (e.target === deleteModal){ pendingDeleteId = null; deleteModal.classList.remove("open"); }
+  });
+  $("confirmDelete").addEventListener("click", function(){
+    if (!pendingDeleteId) return;
+    var btn = $("confirmDelete");
+    btn.disabled = true;
+    btn.textContent = "جارٍ الحذف…";
+    var id = pendingDeleteId;
+    sb.from("subscriptions").delete().eq("id", id)
+      .then(function(res){
+        btn.disabled = false;
+        btn.textContent = "حذف نهائي";
+        deleteModal.classList.remove("open");
+        pendingDeleteId = null;
+        if (res.error){
+          toast("تعذّر الحذف: " + translateError(res.error), true);
+          return;
+        }
+        toast("تم حذف الاشتراك نهائياً.");
+        loadSubscriptions();
+      })
+      .catch(function(err){
+        btn.disabled = false;
+        btn.textContent = "حذف نهائي";
+        toast("تعذّر الحذف: " + translateError(err), true);
+      });
+  });
+
+  /* ---------- Tabs ---------- */
+  function switchTab(which){
+    var isSubs = which === "subs", isOrders = which === "orders", isReviews = which === "reviews";
+    tabSubs.classList.toggle("active", isSubs);
+    tabOrders.classList.toggle("active", isOrders);
+    tabReviews.classList.toggle("active", isReviews);
+    subsSection.classList.toggle("hidden", !isSubs);
+    ordersSection.classList.toggle("hidden", !isOrders);
+    reviewsSection.classList.toggle("hidden", !isReviews);
+    $("addBtn").classList.toggle("hidden", !isSubs);
+    if (isOrders && !ordersLoaded) loadOrders();
+    if (isOrders) loadVisitors();
+    if (isReviews && !reviewsLoaded) loadReviews();
+  }
+  tabSubs.addEventListener("click", function(){ switchTab("subs"); });
+  tabOrders.addEventListener("click", function(){ switchTab("orders"); });
+  tabReviews.addEventListener("click", function(){ switchTab("reviews"); });
+
+  /* ---------- Orders: field mapping (tolerant to column naming) ---------- */
+  function pick(o, keys){
+    for (var i = 0; i < keys.length; i++){
+      if (o[keys[i]] !== undefined && o[keys[i]] !== null && o[keys[i]] !== "") return o[keys[i]];
+    }
+    return "";
+  }
+  function oName(o){ return pick(o, ["subscription_name","subscription","plan_name","plan","product_name","product","service_name","name"]) || "اشتراك"; }
+  function oPrice(o){
+    var v = pick(o, ["price","amount","total","cost"]);
+    var n = Number(v);
+    return isNaN(n) ? 0 : n;
+  }
+  function oCurrency(o){ return pick(o, ["currency"]) || "ج.م"; }
+  function oEmail(o){ return pick(o, ["email","customer_email","client_email"]); }
+  function oCountry(o){ return pick(o, ["country","customer_country","client_country"]); }
+  function oPhone(o){ return pick(o, ["whatsapp","whatsapp_number","phone","phone_number","mobile","customer_phone"]); }
+  function oPayment(o){ return pick(o, ["payment_method","payment","pay_method","method"]) || "—"; }
+  function oNotes(o){ return pick(o, ["notes","note","message","comment"]); }
+  var ORDER_STATUSES = ["جديد","تم التفعيل","تم الدفع","ملغي"];
+  function oStatus(o){
+    var s = pick(o, ["status"]);
+    return ORDER_STATUSES.indexOf(s) > -1 ? s : "جديد";
+  }
+  function fmtDateTime(v){
+    if (!v) return "—";
+    var d = new Date(v);
+    if (isNaN(d.getTime())) return String(v);
+    return d.toLocaleDateString("ar-EG", { year:"numeric", month:"long", day:"numeric" }) +
+      " — " + d.toLocaleTimeString("ar-EG", { hour:"numeric", minute:"2-digit" });
+  }
+  function waNumber(phone){
+    var digits = String(phone || "").replace(/\D/g, "");
+    if (digits.indexOf("00") === 0) digits = digits.slice(2);
+    return digits;
+  }
+
+  /* ---------- Orders: load / render ---------- */
+  function loadOrders(){
+    ordersLoading.classList.remove("hidden");
+    ordersEmpty.classList.add("hidden");
+    hideMsg(ordersMsg);
+    return sb.from("orders").select("*").order("created_at", { ascending: false })
+      .then(function(res){
+        ordersLoading.classList.add("hidden");
+        if (res.error){
+          showMsg(ordersMsg, "تعذّر تحميل الطلبات: " + translateError(res.error), "error");
+          return;
+        }
+        orders = res.data || [];
+        ordersLoaded = true;
+        renderAnalytics();
+        renderOrders();
+      })
+      .catch(function(err){
+        ordersLoading.classList.add("hidden");
+        showMsg(ordersMsg, "تعذّر تحميل الطلبات: " + translateError(err), "error");
+      });
+  }
+  $("refreshOrdersBtn").addEventListener("click", function(){
+    loadOrders().then(function(){ if (ordersLoaded) toast("تم تحديث الطلبات من قاعدة البيانات."); });
+    loadVisitors();
+  });
+
+  function countBy(list, fn){
+    var map = {};
+    list.forEach(function(o){
+      var k = fn(o);
+      map[k] = (map[k] || 0) + 1;
+    });
+    return Object.keys(map).map(function(k){ return { name: k, count: map[k] }; })
+      .sort(function(a, b){ return b.count - a.count; });
+  }
+  function breakdownHtml(rows){
+    if (!rows.length) return '<p class="b-empty">لا توجد بيانات بعد.</p>';
+    return "<ul>" + rows.map(function(r){
+      return '<li><span class="b-name">' + esc(r.name) + '</span><span class="b-count">' + r.count + '</span></li>';
+    }).join("") + "</ul>";
+  }
+
+  function renderAnalytics(){
+    var total = orders.length;
+    var now = new Date();
+    var todayCount = orders.filter(function(o){
+      if (!o.created_at) return false;
+      var d = new Date(o.created_at);
+      return !isNaN(d.getTime()) && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+    }).length;
+    var totalValue = orders.reduce(function(sum, o){ return sum + oPrice(o); }, 0);
+    var collected = orders.filter(function(o){ return oStatus(o) === "تم الدفع"; })
+      .reduce(function(sum, o){ return sum + oPrice(o); }, 0);
+    var currency = orders.length ? oCurrency(orders[0]) : "ج.م";
+
+    analyticsGrid.innerHTML =
+      '<div class="stat"><span>إجمالي الطلبات</span><b>' + total + '</b><span class="stat-sub">كل الطلبات المسجلة</span></div>' +
+      '<div class="stat"><span>طلبات اليوم</span><b>' + todayCount + '</b><span class="stat-sub">' + esc(now.toLocaleDateString("ar-EG", { day:"numeric", month:"long", year:"numeric" })) + '</span></div>' +
+      '<div class="stat"><span>إجمالي قيمة الطلبات</span><b>' + fmtPrice(totalValue) + ' ' + esc(currency) + '</b><span class="stat-sub">مجموع أسعار كل الطلبات</span></div>' +
+      '<div class="stat"><span>المحصَّل فعلياً</span><b>' + fmtPrice(collected) + ' ' + esc(currency) + '</b><span class="stat-sub">طلبات حالتها «تم الدفع» فقط</span></div>';
+
+    $("breakSubs").innerHTML = breakdownHtml(countBy(orders, oName));
+    $("breakPayments").innerHTML = breakdownHtml(countBy(orders, oPayment));
+    $("breakStatuses").innerHTML = breakdownHtml(ORDER_STATUSES.map(function(s){
+      return { name: s, count: orders.filter(function(o){ return oStatus(o) === s; }).length };
+    }).filter(function(r){ return orders.length > 0; }));
+
+    if (total > 0){
+      ordersTabCount.textContent = total;
+      ordersTabCount.classList.remove("hidden");
+    } else {
+      ordersTabCount.classList.add("hidden");
+    }
+  }
+
+  function statusClass(s){
+    if (s === "تم التفعيل") return "status-active";
+    if (s === "تم الدفع") return "status-paid";
+    if (s === "ملغي") return "status-cancelled";
+    return "status-new";
+  }
+
+  function renderOrders(){
+    ordersWrap.innerHTML = "";
+    ordersEmpty.classList.toggle("hidden", orders.length !== 0);
+    orders.forEach(function(o){ ordersWrap.appendChild(buildOrderCard(o)); });
+  }
+
+  function buildOrderCard(o){
+    var card = document.createElement("article");
+    card.className = "order-card";
+    var email = oEmail(o), phone = oPhone(o), notes = oNotes(o), status = oStatus(o);
+    var wa = waNumber(phone);
+
+    var meta =
+      (email ? '<div class="m-item">الإيميل: <a class="ltr" href="mailto:' + esc(email) + '">' + esc(email) + '</a></div>' : "") +
+      (oCountry(o) ? '<div class="m-item">الدولة: <b>' + esc(oCountry(o)) + '</b></div>' : "") +
+      (phone ? '<div class="m-item">واتساب: ' + (wa ? '<a class="ltr" href="https://wa.me/' + esc(wa) + '" target="_blank" rel="noopener">' + esc(phone) + '</a>' : '<b class="ltr">' + esc(phone) + '</b>') + '</div>' : "") +
+      '<div class="m-item">طريقة الدفع: <b>' + esc(oPayment(o)) + '</b></div>';
+
+    var options = ORDER_STATUSES.map(function(s){
+      return '<option value="' + esc(s) + '"' + (s === status ? " selected" : "") + '>' + esc(s) + '</option>';
+    }).join("");
+
+    card.innerHTML =
+      '<div class="order-head">' +
+        '<div class="order-title"><h3>' + esc(oName(o)) + '</h3><p>' + esc(fmtDateTime(o.created_at)) + '</p></div>' +
+        '<div class="order-price">' + fmtPrice(oPrice(o)) + ' ' + esc(oCurrency(o)) + '</div>' +
+      '</div>' +
+      '<div class="order-body">' +
+        '<div class="order-meta">' + meta + '</div>' +
+        (notes ? '<div class="order-notes"><b>ملاحظات:</b> ' + esc(notes) + '</div>' : "") +
+        '<div class="order-actions">' +
+          '<div class="field"><label>حالة الطلب</label><select class="select ' + statusClass(status) + '" data-role="status">' + options + '</select></div>' +
+          '<button type="button" class="btn btn-danger btn-sm" data-act="deleteOrder">حذف الطلب</button>' +
+        '</div>' +
+      '</div>';
+
+    var statusSelect = card.querySelector('[data-role="status"]');
+    statusSelect.addEventListener("change", function(){
+      var newStatus = statusSelect.value;
+      var oldStatus = oStatus(o);
+      statusSelect.disabled = true;
+      sb.from("orders").update({ status: newStatus }).eq("id", o.id)
+        .then(function(res){
+          statusSelect.disabled = false;
+          if (res.error){
+            statusSelect.value = oldStatus;
+            toast("تعذّر تحديث الحالة: " + translateError(res.error), true);
+            return;
+          }
+          o.status = newStatus;
+          statusSelect.className = "select " + statusClass(newStatus);
+          renderAnalytics();
+          toast("تم تحديث حالة طلب «" + oName(o) + "» إلى «" + newStatus + "».");
+        })
+        .catch(function(err){
+          statusSelect.disabled = false;
+          statusSelect.value = oldStatus;
+          toast("تعذّر تحديث الحالة: " + translateError(err), true);
+        });
+    });
+
+    card.querySelector('[data-act="deleteOrder"]').addEventListener("click", function(){
+      pendingDeleteOrderId = o.id;
+      deleteOrderName.textContent = "«" + oName(o) + "»" + (email ? " (" + email + ")" : "");
+      deleteOrderModal.classList.add("open");
+    });
+
+    return card;
+  }
+
+  $("cancelDeleteOrder").addEventListener("click", function(){
+    pendingDeleteOrderId = null;
+    deleteOrderModal.classList.remove("open");
+  });
+  deleteOrderModal.addEventListener("click", function(e){
+    if (e.target === deleteOrderModal){ pendingDeleteOrderId = null; deleteOrderModal.classList.remove("open"); }
+  });
+  $("confirmDeleteOrder").addEventListener("click", function(){
+    if (!pendingDeleteOrderId) return;
+    var btn = $("confirmDeleteOrder");
+    btn.disabled = true;
+    btn.textContent = "جارٍ الحذف…";
+    var id = pendingDeleteOrderId;
+    sb.from("orders").delete().eq("id", id)
+      .then(function(res){
+        btn.disabled = false;
+        btn.textContent = "حذف نهائي";
+        deleteOrderModal.classList.remove("open");
+        pendingDeleteOrderId = null;
+        if (res.error){
+          toast("تعذّر حذف الطلب: " + translateError(res.error), true);
+          return;
+        }
+        orders = orders.filter(function(o){ return o.id !== id; });
+        renderAnalytics();
+        renderOrders();
+        toast("تم حذف الطلب نهائياً.");
+      })
+      .catch(function(err){
+        btn.disabled = false;
+        btn.textContent = "حذف نهائي";
+        toast("تعذّر حذف الطلب: " + translateError(err), true);
+      });
+  });
+
+  /* ---------- Reviews ---------- */
+  var reviewsLoaded = false, reviewsList = [], pendingDeleteReviewId = null;
+  var reviewsWrap = $("reviewsWrap"), reviewsLoading = $("reviewsLoading"), reviewsEmpty = $("reviewsEmpty"), reviewsTabCount = $("reviewsTabCount");
+  var deleteReviewModal = $("deleteReviewModal"), deleteReviewName = $("deleteReviewName");
+
+  function starsText(n){
+    n = Math.max(1, Math.min(5, Number(n) || 5));
+    return "★★★★★".slice(0, n) + "☆☆☆☆☆".slice(0, 5 - n);
+  }
+
+  function loadReviews(){
+    reviewsLoading.classList.remove("hidden");
+    return sb.from("reviews").select("*").order("sort", { ascending: true }).order("created_at", { ascending: true })
+      .then(function(res){
+        reviewsLoading.classList.add("hidden");
+        if (res.error) throw res.error;
+        reviewsList = res.data || [];
+        reviewsLoaded = true;
+        renderReviewsAdmin();
+      })
+      .catch(function(err){
+        reviewsLoading.classList.add("hidden");
+        toast("تعذّر تحميل التقييمات: " + translateError(err), true);
+      });
+  }
+
+  function renderReviewsAdmin(){
+    reviewsWrap.innerHTML = "";
+    if (reviewsList.length){
+      reviewsTabCount.textContent = reviewsList.length;
+      reviewsTabCount.classList.remove("hidden");
+    } else {
+      reviewsTabCount.classList.add("hidden");
+    }
+    reviewsEmpty.classList.toggle("hidden", reviewsList.length > 0);
+    var dl = $("rvProducts");
+    dl.innerHTML = "";
+    if (typeof subscriptions !== "undefined"){
+      subscriptions.forEach(function(s){
+        var o = document.createElement("option");
+        o.value = s.name;
+        dl.appendChild(o);
+      });
+    }
+    reviewsList.forEach(function(r){
+      var card = document.createElement("article");
+      card.className = "card";
+      var who = "<b>" + esc(r.name) + "</b>";
+      if (r.country) who += " — " + esc(r.country);
+      if (r.product) who += " • " + esc(r.product);
+      card.innerHTML =
+        '<div class="review-card-body">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">' +
+            '<div class="review-stars">' + starsText(r.stars) + '</div>' +
+            '<button type="button" class="btn btn-danger" data-del-review="' + r.id + '">حذف</button>' +
+          '</div>' +
+          '<p class="review-card-text">“' + esc(r.text) + '”</p>' +
+          '<div class="review-who">' + who + '</div>' +
+        '</div>';
+      reviewsWrap.appendChild(card);
+    });
+  }
+
+  $("reviewForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var name = $("rvName").value.trim(), text = $("rvText").value.trim();
+    if (!name || !text){
+      toast("من فضلك اكتب اسم العميل ونص التقييم أولاً.", true);
+      return;
+    }
+    var btn = $("rvAddBtn");
+    btn.disabled = true;
+    btn.textContent = "جارٍ الإضافة…";
+    var maxSort = reviewsList.reduce(function(m, r){ return Math.max(m, Number(r.sort) || 0); }, 0);
+    sb.from("reviews").insert({
+      name: name,
+      country: $("rvCountry").value.trim(),
+      product: $("rvProduct").value.trim(),
+      stars: Number($("rvStars").value) || 5,
+      text: text,
+      sort: maxSort + 1
+    }).then(function(res){
+      btn.disabled = false;
+      btn.textContent = "＋ إضافة التقييم";
+      if (res.error) throw res.error;
+      $("rvName").value = "";
+      $("rvCountry").value = "";
+      $("rvProduct").value = "";
+      $("rvText").value = "";
+      $("rvStars").value = "5";
+      toast("تمت إضافة التقييم وسيظهر في المتجر فوراً.");
+      reviewsLoaded = false;
+      loadReviews();
+    }).catch(function(err){
+      btn.disabled = false;
+      btn.textContent = "＋ إضافة التقييم";
+      toast("تعذّرت إضافة التقييم: " + translateError(err), true);
+    });
+  });
+
+  $("refreshReviewsBtn").addEventListener("click", function(){ loadReviews(); });
+
+  reviewsWrap.addEventListener("click", function(e){
+    var b = e.target.closest("[data-del-review]");
+    if (!b) return;
+    var r = reviewsList.filter(function(x){ return String(x.id) === b.getAttribute("data-del-review"); })[0];
+    if (!r) return;
+    pendingDeleteReviewId = r.id;
+    deleteReviewName.textContent = r.name;
+    deleteReviewModal.classList.add("open");
+  });
+  $("cancelDeleteReview").addEventListener("click", function(){
+    pendingDeleteReviewId = null;
+    deleteReviewModal.classList.remove("open");
+  });
+  deleteReviewModal.addEventListener("click", function(e){
+    if (e.target === deleteReviewModal){
+      pendingDeleteReviewId = null;
+      deleteReviewModal.classList.remove("open");
+    }
+  });
+  $("confirmDeleteReview").addEventListener("click", function(){
+    if (!pendingDeleteReviewId) return;
+    var btn = $("confirmDeleteReview");
+    btn.disabled = true;
+    btn.textContent = "جارٍ الحذف…";
+    sb.from("reviews").delete().eq("id", pendingDeleteReviewId)
+      .then(function(res){
+        btn.disabled = false;
+        btn.textContent = "حذف نهائي";
+        if (res.error) throw res.error;
+        pendingDeleteReviewId = null;
+        deleteReviewModal.classList.remove("open");
+        toast("تم حذف التقييم نهائياً.");
+        reviewsLoaded = false;
+        loadReviews();
+      })
+      .catch(function(err){
+        btn.disabled = false;
+        btn.textContent = "حذف نهائي";
+        toast("تعذّر حذف التقييم: " + translateError(err), true);
+      });
+  });
+
+  /* ---------- Visitors ---------- */
+  function loadVisitors(){
+    var grid = $("visitorsGrid");
+    if (!grid) return;
+    sb.from("page_views").select("created_at").order("created_at", { ascending: false }).limit(10000)
+      .then(function(res){
+        if (res.error) throw res.error;
+        var rows = res.data || [];
+        var now = new Date();
+        var dayMs = 24 * 60 * 60 * 1000;
+        var today = 0, last7 = 0, last30 = 0;
+        rows.forEach(function(r){
+          var d = new Date(r.created_at);
+          if (isNaN(d.getTime())) return;
+          if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate()) today++;
+          if (now - d < 7 * dayMs) last7++;
+          if (now - d < 30 * dayMs) last30++;
+        });
+        grid.innerHTML =
+          '<div class="stat"><span>إجمالي الزيارات</span><b>' + rows.length + '</b><span class="stat-sub">كل مرات فتح صفحة المتجر</span></div>' +
+          '<div class="stat"><span>زيارات اليوم</span><b>' + today + '</b><span class="stat-sub">' + esc(now.toLocaleDateString("ar-EG", { day: "numeric", month: "long", year: "numeric" })) + '</span></div>' +
+          '<div class="stat"><span>آخر 7 أيام</span><b>' + last7 + '</b><span class="stat-sub">زيارات الأسبوع الأخير</span></div>' +
+          '<div class="stat"><span>آخر 30 يوماً</span><b>' + last30 + '</b><span class="stat-sub">زيارات الشهر الأخير</span></div>';
+      })
+      .catch(function(){
+        grid.innerHTML = '<div class="stat"><span>زوار المتجر</span><b>—</b><span class="stat-sub">تعذّر تحميل إحصائيات الزوار</span></div>';
+      });
+  }
+
+  /* ---------- Session bootstrap ---------- */
+  sb.auth.getSession().then(function(res){
+    var session = res.data && res.data.session;
+    if (session && session.user){
+      enterAdmin(session.user);
+    } else {
+      showAuth();
+    }
+  }).catch(function(){ showAuth(); });
+
+  sb.auth.onAuthStateChange(function(event, session){
+    if (event === "SIGNED_OUT"){
+      showAuth();
+    } else if (session && session.user && adminView.classList.contains("hidden") && event === "SIGNED_IN"){
+      enterAdmin(session.user);
+    }
+  });
+})();
+</script>
+</body>
+</html>

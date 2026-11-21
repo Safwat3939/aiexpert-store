@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>AI Expert — اشتراكات أصلية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#ffffff; --surface2:#f0ede6; --text:#17201c; --muted:#5c6a63; --line:#e2ded2;
+  --brand:#0f6b4f; --brand-dark:#0a4f3a; --brand-soft:#e6f2ec; --amber:#d98a16; --amber-soft:#fdf0d9;
+  --danger:#b42318; --radius:18px; --shadow:0 10px 30px rgba(23,32,28,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#121613; --surface:#1c221e; --surface2:#242c27; --text:#eef2ef; --muted:#a7b3ab; --line:#2e3832; --brand:#2fbb8a; --brand-dark:#2fbb8a; --brand-soft:#16382b; --amber:#f0a832; --amber-soft:#3a2d12; --shadow:0 10px 30px rgba(0,0,0,.35); }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"IBM Plex Sans Arabic",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:var(--brand)}
+button,input,select,textarea{font:inherit}
+button,[role="button"],select,input:not([type=checkbox],[type=radio]),textarea{min-height:44px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+/* Hero */
+.brand-name{font-size:28px;font-weight:800;letter-spacing:.3px;color:var(--brand-dark);margin-bottom:14px;line-height:1.2}
+.brand-name span{color:var(--brand)}
+.hero{padding:44px 0 28px;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--brand-soft);color:var(--brand-dark);font-weight:700;font-size:14px;padding:8px 16px;border-radius:999px;border:1px solid var(--line)}
+.hero h1{font-size:clamp(30px,6vw,52px);line-height:1.25;margin:18px auto 10px;font-weight:800;max-width:760px}
+.hero h1 span{color:var(--brand)}
+.hero p{color:var(--muted);font-size:clamp(16px,2.5vw,19px);max-width:640px;margin:0 auto}
+.hero-cta{margin-top:22px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;cursor:pointer;border-radius:12px;padding:12px 22px;font-weight:700;text-decoration:none;min-height:48px;font-size:16px}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover{background:var(--brand-dark)}
+.btn-primary:disabled{opacity:.65;cursor:wait}
+.btn-ghost{background:var(--surface);color:var(--text);border:1px solid var(--line)}
+.trust{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px}
+.trust div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 16px;font-weight:600;font-size:14px;box-shadow:var(--shadow)}
+.trust b{color:var(--brand)}
+/* Steps */
+.section{padding:34px 0}
+.section-head{text-align:center;margin-bottom:22px}
+.section-head h2{font-size:clamp(24px,4vw,32px);margin:0 0 6px;font-weight:800}
+.section-head p{color:var(--muted);margin:0}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 16px;text-align:center}
+.step-num{width:44px;height:44px;margin:0 auto 10px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px}
+.step h3{margin:0 0 4px;font-size:17px}
+.step p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
+.pay-note{background:var(--amber-soft);border:1px solid var(--amber);border-radius:var(--radius);padding:16px 20px;text-align:center;font-weight:700;margin-top:16px}
+/* Products */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.card-top{display:flex;align-items:center;gap:14px;margin-bottom:10px}
+.logo{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;color:#fff;flex-shrink:0}
+.card h3{margin:0;font-size:21px;line-height:1.4}
+.card .en{color:var(--muted);font-size:13px;font-weight:600}
+.card .desc{color:var(--muted);font-size:15px;margin:4px 0 12px}
+.card ul{list-style:none;padding:0;margin:0 0 16px;flex:1}
+.card li{padding:5px 0;font-size:15px;display:flex;gap:8px;align-items:flex-start}
+.card li::before{content:"✓";color:var(--brand);font-weight:800;flex-shrink:0}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600}
+.chip.pay{background:var(--brand-soft);color:var(--brand-dark)}
+.price{font-size:15px;font-weight:700;color:var(--amber);background:var(--amber-soft);border-radius:10px;padding:10px 14px;text-align:center;margin-bottom:14px}
+.price .now{font-size:22px;color:var(--text)}
+.price .old{text-decoration:line-through;color:var(--muted);font-weight:600;font-size:14px;margin-inline-start:8px}
+.price .off{background:var(--danger);color:#fff;font-size:12px;padding:2px 8px;border-radius:999px;margin-inline-start:8px;vertical-align:middle}
+.card .btn{width:100%}
+.card.unavailable{opacity:.78}
+.card.unavailable .logo{filter:grayscale(.4)}
+.btn-disabled{background:var(--surface2)!important;color:var(--muted)!important;border:1px solid var(--line);cursor:not-allowed}
+.badge-unavail{background:#3a1512;color:#ffb4a8;border:1px solid var(--danger)}
+@media (prefers-color-scheme: light){.badge-unavail{background:#fef3f2;color:#912018}}
+.badge-featured{background:var(--amber);color:#1a1200;border-color:var(--amber)}
+/* Reviews */
+.notice{background:var(--amber-soft);border:1px dashed var(--amber);border-radius:12px;padding:12px 18px;text-align:center;font-weight:600;font-size:15px;margin-bottom:18px}
+.reviews{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.review{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.review .stars{color:var(--amber);letter-spacing:2px;font-size:17px}
+.review p{margin:8px 0;font-size:15px}
+.review .who{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:14px}
+.tag-example{background:var(--surface2);border:1px solid var(--line);padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700}
+/* FAQ */
+.faq{max-width:760px;margin:0 auto;display:grid;gap:10px}
+.faq details{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px 18px}
+.faq summary{cursor:pointer;font-weight:700;padding:10px 0;min-height:44px;display:flex;align-items:center}
+.faq details p{color:var(--muted);margin:0 0 14px}
+/* Modal / form */
+.overlay{position:fixed;inset:0;background:rgba(10,15,12,.6);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+.overlay.open{display:flex}
+.modal{background:var(--surface);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:22px 22px 0 0;padding:24px 20px 28px}
+@media(min-width:640px){.overlay{align-items:center;padding:18px}.modal{border-radius:22px}}
+.modal h2{margin:0 0 4px;font-size:22px}
+.modal .sub{color:var(--muted);margin:0 0 18px;font-size:15px}
+.selected{background:var(--brand-soft);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.field{margin-bottom:14px}
+.field label{display:block;font-weight:700;margin-bottom:6px;font-size:15px}
+.field label small{color:var(--muted);font-weight:500}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--bg);color:var(--text)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--brand);border-color:transparent}
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pay-opt{position:relative}
+.pay-opt input{position:absolute;opacity:0;inset:0;min-height:100%;cursor:pointer}
+.pay-opt span{display:flex;align-items:center;justify-content:center;text-align:center;border:1px solid var(--line);border-radius:12px;padding:12px 8px;font-weight:700;font-size:15px;background:var(--bg);min-height:52px}
+.pay-opt input:checked + span{border-color:var(--brand);background:var(--brand-soft);color:var(--brand-dark);outline:2px solid var(--brand)}
+.pay-opt input:focus-visible + span{outline:2px solid var(--brand)}
+.form-note{background:var(--amber-soft);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:600;margin:6px 0 16px}
+.err{color:var(--danger);font-size:14px;font-weight:600;display:none;margin-bottom:10px}
+.success{display:none;text-align:center;padding:10px 0}
+.success .big{width:64px;height:64px;border-radius:50%;background:var(--brand-soft);color:var(--brand);font-size:32px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-weight:800}
+.close-row{display:flex;justify-content:flex-end}
+.close-btn{background:var(--surface2);border:1px solid var(--line);border-radius:10px;width:44px;height:44px;cursor:pointer;font-size:18px;color:var(--text)}
+footer{border-top:1px solid var(--line);padding:28px 0 40px;text-align:center;color:var(--muted);font-size:14px;margin-top:20px}
+footer a{font-weight:700}
+@media(max-width:760px){.steps{grid-template-columns:1fr 1fr}.pay-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.steps{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header class="hero wrap">
+  <div class="brand-name" dir="ltr">AI <span>Expert</span></div>
+  <span class="hero-badge">💸 الدفع بعد التفعيل</span>
+  <h1>اشتراكات أصلية، <span>تتفعّل الأول… وتدفع بعدين</span></h1>
+  <p>اختار اشتراكك، ابعت طلبك، وهنفعّله لك على واتسابك خطوة بخطوة — ومش هتدفع أي حاجة غير بعد ما اشتراكك يشتغل.</p>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="#products">تصفّح الاشتراكات</a>
+    <a class="btn btn-ghost" href="#how">إزاي تطلب؟</a>
+  </div>
+  <div class="trust">
+    <div>✓ <b>الدفع بعد التفعيل</b> — مش قبل</div>
+    <div>✓ التفعيل على <b>واتسابك الخاص</b></div>
+    <div>✓ تأكيد ومتابعة على <b>واتساب</b></div>
+  </div>
+</header>
+
+<section class="section wrap" id="how">
+  <div class="section-head"><h2>إزاي تطلب؟</h2><p>أربع خطوات بسيطة، والطلب بيتبعت مباشرة من الموقع للمتجر</p></div>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><h3>اختار الاشتراك</h3><p>اختار الاشتراك اللي يناسبك من القايمة تحت — شهري أو سنوي حسب كل اشتراك.</p></div>
+    <div class="step"><div class="step-num">2</div><h3>املأ بياناتك</h3><p>اكتب إيميلك، دولتك الحالية، رقم واتسابك، وطريقة الدفع اللي تفضّلها.</p></div>
+    <div class="step"><div class="step-num">3</div><h3>التفعيل على واتساب</h3><p>هنفعّل الاشتراك ونتواصل معاك على واتسابك لإتمام التفعيل وتأكيده.</p></div>
+    <div class="step"><div class="step-num">4</div><h3>ادفع بعد التفعيل</h3><p>بعد ما تتأكد إن الاشتراك شغال، ادفع بالطريقة اللي اخترتها.</p></div>
+  </div>
+  <div class="pay-note">🛡️ مش هتدفع قبل ما اشتراكك يتفعّل ويشتغل — الدفع دايماً بعد التفعيل.</div>
+</section>
+
+<main class="section wrap" id="products" style="padding-top:6px">
+  <div class="section-head"><h2>الاشتراكات المتاحة</h2><p>الأسعار والمدة محدّثة من المتجر — والتفعيل على واتسابك، والدفع بعد التفعيل</p></div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<section class="section wrap" id="reviews">
+  <div class="section-head"><h2>تقييمات العملاء</h2><p>آراء عملائنا من تجربتهم معنا</p></div>
+  <div class="reviews" id="reviews"></div>
+</section>
+
+<section class="section wrap">
+  <div class="section-head"><h2>أسئلة شائعة</h2></div>
+  <div class="faq">
+    <details><summary>متى أدفع؟</summary><p>الدفع بعد التفعيل دائماً. هنفعّل اشتراكك على واتسابك الأول ونتأكد معاك إنه شغال، وبعدها تدفع بالطريقة اللي اخترتها في الطلب.</p></details>
+    <details><summary>إيه طرق الدفع المتاحة؟</summary><p>فودافون كاش، Binance، PayPal، وبنكك في السودان. اختار الطريقة المناسبة لك وانت بتطلب، وهتستخدمها بعد التفعيل.</p></details>
+    <details><summary>التفعيل بيتم إزاي؟</summary><p>التفعيل بيتم على رقم الواتساب اللي سجّلته في الطلب — هنبعت لك عليه خطوات التفعيل والتأكيد وكل التفاصيل. الإيميل اللي كتبته بيكون ضمن بيانات طلبك للتواصل والمتابعة.</p></details>
+    <details><summary>طلباتي بتوصلكم إزاي؟</summary><p>لما تدوس «إرسال الطلب»، طلبك بيتبعت مباشرة من الموقع للمتجر بكل بياناتك: الاشتراك، إيميلك، دولتك، طريقة الدفع، ورقم واتسابك — من غير ما تحتاج تفتح إيميلك أو تبعت حاجة بنفسك. صاحب المتجر هيتواصل معاك بعدها على واتسابك وإيميلك لبدء التفعيل.</p></details>
+    <details><summary>مدة الاشتراك قد إيه؟</summary><p>المدة مكتوبة على كل اشتراك: فيه اشتراكات شهرية وفيه اشتراكات سنوية، وتقدر تجدّد بنفس الطريقة عند انتهاء المدة.</p></details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p dir="ltr" style="font-weight:800;font-size:18px;color:var(--text);margin:0 0 6px">AI Expert</p>
+    <p>للطلبات والاستفسارات: <a href="mailto:iujdkhdjusjjd@gmail.com">iujdkhdjusjjd@gmail.com</a></p>
+    <p>التفعيل على واتساب العميل • الدفع بعد التفعيل • اشتراكات شهرية وسنوية</p>
+  </div>
+</footer>
+
+<!-- Order modal -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="close-row"><button class="close-btn" id="closeBtn" aria-label="إغلاق">✕</button></div>
+    <div id="formView">
+      <h2 id="modalTitle">إتمام الطلب</h2>
+      <p class="sub">املأ بياناتك ودوس إرسال — طلبك هيتبعت مباشرة للمتجر من الموقع، وصاحب المتجر هيتواصل معاك للتفعيل.</p>
+      <div class="selected"><span id="selName"></span><span id="selMeta"></span></div>
+      <form id="orderForm" novalidate>
+        <div class="field">
+          <label for="fEmail">إيميلك</label>
+          <input type="email" id="fEmail" placeholder="example@gmail.com" autocomplete="email" required dir="ltr" style="text-align:left">
+        </div>
+        <div class="field">
+          <label for="fCountry">الدولة اللي ساكن فيها حالياً</label>
+          <input type="text" id="fCountry" placeholder="مثال: مصر، السودان، السعودية…" autocomplete="country-name" required>
+        </div>
+        <div class="field">
+          <label for="fWhatsapp">رقم الواتساب <small>(بكود الدولة — التفعيل والتأكيد هيكونوا عليه)</small></label>
+          <input type="tel" id="fWhatsapp" placeholder="+20 1xxxxxxxxx" autocomplete="tel" required dir="ltr" style="text-align:left">
+        </div>
+        <div class="field">
+          <label>طريقة الدفع <small>(هتدفع بيها بعد التفعيل)</small></label>
+          <div class="pay-grid">
+            <label class="pay-opt"><input type="radio" name="pay" value="فودافون كاش"><span>فودافون كاش</span></label>
+            <label class="pay-opt"><input type="radio" name="pay" value="Binance"><span>Binance</span></label>
+            <label class="pay-opt"><input type="radio" name="pay" value="PayPal"><span>PayPal</span></label>
+            <label class="pay-opt"><input type="radio" name="pay" value="بنكك — السودان"><span>بنكك — السودان</span></label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="fNotes">ملحوظة إضافية <small>(اختياري)</small></label>
+          <textarea id="fNotes" rows="2" placeholder="أي تفاصيل تحب تضيفها…"></textarea>
+        </div>
+        <div class="form-note">🛡️ الدفع بعد التفعيل: مش هتدفع أي حاجة دلوقتي. هنفعّل الاشتراك على واتسابك ونأكّد معاك الأول، وبعدها تدفع بطريقتك المختارة.</div>
+        <p class="err" id="formErr"></p>
+        <button type="submit" class="btn btn-primary" id="submitBtn" style="width:100%">إرسال الطلب — الدفع بعد التفعيل</button>
+      </form>
+    </div>
+    <div class="success" id="successView" role="status" aria-live="polite">
+      <div class="big">✓</div>
+      <h2>🎉 تم استلام طلبك بنجاح!</h2>
+      <p class="sub" id="successText">تم استلام طلبك بنجاح! وصاحب المتجر هيتواصل معاك على <b>إيميلك وواتسابك</b> للتفعيل — <b>الدفع بعد التفعيل</b> بالطريقة اللي اخترتها، مش قبل.<br><br>تقدر تكمل تصفّح الموقع عادي في أي وقت.</p>
+      <button class="btn btn-primary" id="doneBtn" style="width:100%">تمام — متابعة تصفّح الموقع</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var WEB3FORMS_KEY = "b24793c9-05fa-4d4b-8a3b-cee194b14c6a";
+
+var SUPABASE_URL = "https://rbmfdxfypfmsfgeuolmb.supabase.co/rest/v1/subscriptions?select=*&order=sort.asc";
+var SUPABASE_ORDERS_URL = "https://rbmfdxfypfmsfgeuolmb.supabase.co/rest/v1/orders";
+var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJibWZkeGZ5cGZtc2ZnZXVvbG1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMTI5MjcsImV4cCI6MjExMDc4ODkyN30.90sTMecDO_pZ-YsVkGvAPD6hbC4Newp9MW5LZNqxbnU";
+
+var PRODUCTS = [
+  { id:"gemini", name:"Gemini Pro", en:"Gemini Pro", category:"ذكاء اصطناعي", duration:"سنوي", durationLabel:"اشتراك سنوي", price:250, oldPrice:500, available:true, featured:true, color:"#2563EB", initial:"✦",
+    desc:"اشتراك الذكاء الاصطناعي من Google — نماذج Gemini المتقدمة للكتابة والبحث والبرمجة والتحليل.",
+    feats:["الوصول إلى نماذج Gemini المتقدمة","مساعد ذكاء اصطناعي داخل Gmail و Google Docs","مساحة تخزين إضافية في Google One","أولوية الوصول إلى الميزات الجديدة","1000كرديت علي FLOW"] },
+  { id:"duolingo", name:"Duolingo Plus", en:"Duolingo Plus", category:"تعليم", duration:"سنوي", durationLabel:"اشتراك سنوي", price:250, oldPrice:400, available:true, featured:false, color:"#58CC02", initial:"🦉",
+    desc:"اشتراك دولينجو بلس — تعلّم أي لغة من غير إعلانات وبقلوب غير محدودة ودروس تقدر تنزّلها وتكملها أوفلاين.",
+    feats:["تعلّم من غير إعلانات","قلوب غير محدودة من غير ما تستنى","تنزيل الدروس وإكمالها بدون إنترنت","مراجعة مخصصة لأخطائك وتتبّع تقدّمك"] },
+  { id:"spotify", name:"Spotify Premium", en:"Spotify Premium", category:"ترفيه", duration:"شهري", durationLabel:"اشتراك شهري", price:0, oldPrice:0, available:false, featured:false, color:"#1DB954", initial:"♫",
+    desc:"اشتراك سبوتيفاي بريميوم — اسمع الأغاني والبودكاست بجودة عالية ومن غير إعلانات، وحمّل واسمع أوفلاين.",
+    feats:["استماع من غير إعلانات","تحميل الأغاني والبودكاست والاستماع بدون إنترنت","جودة صوت عالية","تخطي غير محدود للأغاني"] },
+  { id:"chatgpt", name:"ChatGPT Plus", en:"ChatGPT Plus", category:"ذكاء اصطناعي", duration:"شهري", durationLabel:"اشتراك شهري", price:649, oldPrice:1000, available:true, featured:false, color:"#111827", initial:"✚",
+    desc:"اشتراك شات جي بي تي بلس من OpenAI — أحدث النماذج وأسرع ردود للكتابة والبرمجة والتحليل وإنشاء الصور.",
+    feats:["الوصول إلى أحدث نماذج OpenAI","ردود أسرع وأولوية الوصول وقت الزحمة","تحليل الملفات والصور والمحادثة الصوتية","إنشاء الصور واستخدام GPTs مخصصة"] },
+  { id:"canva", name:"Canva Pro", en:"Canva Pro", category:"تصميم", duration:"شهري", durationLabel:"اشتراك شهري", price:150, oldPrice:200, available:true, featured:false, color:"#00A6A6", initial:"✎",
+    desc:"اشتراك التصميم الاحترافي من Canva — قوالب وأدوات بريميوم لتصاميم أسرع وأجمل.",
+    feats:["مكتبة ضخمة من القوالب والعناصر البريميوم","إزالة خلفية الصور بضغطة واحدة","تغيير حجم التصميم لأي مقاس تلقائياً","مساحة تخزين سحابية أكبر للتصاميم"] }
+];
+
+var REVIEWS = [
+  { name:"سلمى طارق", country:"مصر", stars:5, text:"بستخدم ChatGPT Plus يومياً في كتابة المحتوى وتلخيص الأبحاث، وفرق معايا جداً في سرعة الشغل. حولت على إنستا باي والتفعيل وصلني على الواتساب في أقل من ربع ساعة.", product:"ChatGPT Plus" },
+  { name:"عبدالرحمن الدوسري", country:"السعودية", stars:5, text:"اشتراك Gemini Pro شغال بكامل مميزاته ومستقر جداً معايا في الشغل والتحليل. التعامل راقي والرد سريع على الواتساب، مو آخر تعامل إن شاء الله.", product:"Gemini Pro" },
+  { name:"ندى محمود", country:"مصر", stars:5, text:"شغلي كله تصميمات للسوشيال ميديا وCanva Pro هنا سعره ممتاز مقارنة بأي مكان تاني. كل الخطوط والقوالب المدفوعة مفتوحة وشغالة بدون أي مشاكل.", product:"Canva Pro" },
+  { name:"عثمان بابكر", country:"السودان", stars:5, text:"كنت بدور على طريقة مضمونة أشترك بيها في ChatGPT من السودان، ودفعت عبر تطبيق بنكك بكل سهولة. التفعيل تم في نفس اليوم والدعم متابع معايا خطوة بخطوة.", product:"ChatGPT Plus" },
+  { name:"حسام الدين علي", country:"مصر", stars:4, text:"الخدمة ممتازة والاشتراك شغال تمام من أول يوم. التفعيل أخد حوالي نص ساعة عشان كان فيه ضغط شوية، بس للأمانة الناس محترمة جداً والسعر لقطة.", product:"Canva Pro" },
+  { name:"دانة المطيري", country:"الكويت", stars:5, text:"أحلى شي إن ما احتجت أربط بطاقتي البنكية بأي موقع. تواصلت معاهم واتساب وتم تفعيل اشتراك ChatGPT Plus بسرعة وأمان، صار لي شهرين أجدد معاهم.", product:"ChatGPT Plus" },
+  { name:"مازن الشريف", country:"الإمارات", stars:5, text:"دفعت عن طريق USDT على بينانس والعملية ما أخذت دقايق. اشتراك Gemini Pro شغال بسلاسة وبيساعدني كتير في البرمجة ومراجعة الأكواد.", product:"Gemini Pro" },
+  { name:"مريم عبدالعزيز", country:"مصر", stars:5, text:"اشتركت عشان المذاكرة ومشروع التخرج، بصراحة وفر عليا وقت ومجهود رهيب. دفعت فودافون كاش والخطوات كانت واضحة وسهلة جداً، ربنا يبارك فيكم.", product:"Gemini Pro" },
+  { name:"طارق المنصور", country:"قطر", stars:5, text:"نحتاج Canva Pro في تجهيز العروض التقديمية للشركة، والاشتراك ممتاز ومفعل عليه كل أدوات الذكاء الاصطناعي وإزالة الخلفية. خدمة سريعة وموثوقة.", product:"Canva Pro" },
+  { name:"وليد السيد", country:"مصر", stars:4, text:"دي تاني مرة أجدد اشتراك ChatGPT Plus معاهم. الاشتراك شغال تمام بدون تقطيع، بس أتمنى يضيفوا باقات لـ 3 شهور بخصم أكبر. في المجمل تجربة ممتازة.", product:"ChatGPT Plus" },
+  { name:"آية الصادق", country:"السودان", stars:5, text:"طلبت اشتراك كانفا برو ودفعت ببنكك، كنت خايفة في البداية بس طلع تعاملهم في قمة الذوق والمصداقية. استلمت الاشتراك في نفس الساعة وشغال مية المية.", product:"Canva Pro" },
+  { name:"فيصل القحطاني", country:"السعودية", stars:5, text:"جربت أكثر من متجر قبل كذا وكان الدعم بطيء، لكن هنا خلصت الدفع وتفعل اشتراك Gemini Pro في دقايق. شغل احترافي وأنصح بالتعامل معاهم.", product:"Gemini Pro" }
+];
+
+function formatPrice(p){
+  if(!p.price || p.price===0) return '<span>السعر لم يُحدَّد بعد — هيتأكد لك على واتساب قبل الدفع</span>';
+  var cur = p.currency || 'ج.م';
+  var off = (p.oldPrice && p.oldPrice>p.price) ? Math.round((1-p.price/p.oldPrice)*100) : 0;
+  var html = '<span class="now">'+p.price+' '+cur+'</span> <span style="font-weight:600;color:var(--muted)">/ '+p.duration+'</span>';
+  if(p.oldPrice && p.oldPrice>p.price) html += '<span class="old">'+p.oldPrice+' '+cur+'</span>' + (off? '<span class="off">خصم '+off+'%</span>':'');
+  return html;
+}
+function priceText(p){
+  if(!p.price || p.price===0) return 'لم يُحدَّد بعد (يُؤكَّد للعميل قبل الدفع)';
+  var cur = p.currency || 'ج.م';
+  var t = p.price+' '+cur+' ('+p.durationLabel+')';
+  if(p.oldPrice && p.oldPrice>p.price) t += ' — قبل الخصم '+p.oldPrice+' '+cur;
+  return t;
+}
+
+var grid = document.getElementById('grid');
+var ACTIVE_PRODUCTS = PRODUCTS;
+
+function renderProducts(list){
+  grid.innerHTML = '';
+  list.forEach(function(p){
+    var card = document.createElement('article');
+    card.className = 'card' + (p.available ? '' : ' unavailable');
+    var feats = (p.feats || []).map(function(f){ return '<li>'+f+'</li>'; }).join('');
+    var chips = '<span class="chip">'+p.durationLabel+'</span><span class="chip">'+p.category+'</span>';
+    if(p.featured) chips += '<span class="chip badge-featured">⭐ مميز</span>';
+    if(!p.available) chips += '<span class="chip badge-unavail">غير متاح حالياً</span>';
+    else chips += '<span class="chip pay">الدفع بعد التفعيل</span><span class="chip">التفعيل على واتساب</span>';
+    var btn = p.available
+      ? '<button type="button" class="btn btn-primary" data-order="'+p.id+'">اطلب دلوقتي — الدفع بعد التفعيل</button>'
+      : '<button type="button" class="btn btn-disabled" disabled aria-disabled="true">غير متاح حالياً</button>';
+    card.innerHTML =
+      '<div class="card-top"><div class="logo" style="background:'+(p.color || '#0f6b4f')+'">'+(p.initial || '✦')+'</div>' +
+      '<div><h3>'+p.name+'</h3><div class="en">'+p.en+' • '+p.category+'</div></div></div>' +
+      '<p class="desc">'+p.desc+'</p><ul>'+feats+'</ul>' +
+      '<div class="meta">'+chips+'</div>' +
+      '<div class="price">'+formatPrice(p)+'</div>' +
+      btn;
+    grid.appendChild(card);
+  });
+}
+
+/* Render the built-in catalog immediately so the store is never empty,
+   then replace it with the live Supabase catalog when it loads. */
+renderProducts(ACTIVE_PRODUCTS);
+
+function mapSupabaseRow(r){
+  var feats = r.features;
+  if(typeof feats === 'string'){ try { feats = JSON.parse(feats); } catch(e){ feats = [feats]; } }
+  if(!Array.isArray(feats)) feats = [];
+  var duration = r.duration || '';
+  return {
+    id: String(r.id),
+    name: r.name || '',
+    en: r.name || '',
+    category: r.category || '',
+    duration: duration,
+    durationLabel: duration ? ('اشتراك ' + duration) : '',
+    price: (r.price === null || r.price === undefined) ? 0 : Number(r.price),
+    oldPrice: (r.old_price === null || r.old_price === undefined) ? 0 : Number(r.old_price),
+    currency: r.currency || 'ج.م',
+    available: r.available !== false,
+    featured: !!r.featured,
+    color: r.color || '#0f6b4f',
+    initial: r.icon || '✦',
+    desc: r.description || '',
+    feats: feats
+  };
+}
+
+fetch(SUPABASE_URL, {
+  method: 'GET',
+  headers: {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+    'Accept': 'application/json'
+  }
+}).then(function(res){
+  if(!res.ok) throw new Error('supabase ' + res.status);
+  return res.json();
+}).then(function(rows){
+  if(Array.isArray(rows) && rows.length){
+    var live = rows.map(mapSupabaseRow);
+    ACTIVE_PRODUCTS = live;
+    renderProducts(live);
+  }
+}).catch(function(){
+  /* Keep the built-in fallback catalog already on screen. */
+});
+
+/* تسجيل زيارة لصفحة المتجر (تظهر في إحصائيات الأدمين) */
+try {
+  fetch("https://rbmfdxfypfmsfgeuolmb.supabase.co/rest/v1/page_views", {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ path: location.pathname || '/' }),
+    keepalive: true
+  }).catch(function(){});
+} catch(e){}
+
+var revWrap = document.getElementById('reviews');
+function renderReviews(list){
+  revWrap.innerHTML = '';
+  list.forEach(function(r){
+    var d = document.createElement('article');
+    d.className = 'review';
+    var st = Math.max(1, Math.min(5, Number(r.stars) || 5));
+    var stars = '★★★★★'.slice(0, st) + '☆☆☆☆☆'.slice(0, 5 - st);
+    var who = '<b>' + r.name + '</b>';
+    if (r.country) who += ' — ' + r.country;
+    if (r.product) who += ' • ' + r.product;
+    d.innerHTML = '<div class="stars" aria-label="' + st + ' من 5">' + stars + '</div><p>“' + r.text + '”</p>' +
+      '<div class="who"><span>' + who + '</span></div>';
+    revWrap.appendChild(d);
+  });
+}
+renderReviews(REVIEWS);
+
+var REVIEWS_URL = "https://rbmfdxfypfmsfgeuolmb.supabase.co/rest/v1/reviews?select=*&order=sort.asc,created_at.asc";
+fetch(REVIEWS_URL, {
+  method: 'GET',
+  headers: {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+    'Accept': 'application/json'
+  }
+}).then(function(res){
+  if(!res.ok) throw new Error('supabase ' + res.status);
+  return res.json();
+}).then(function(rows){
+  if(Array.isArray(rows) && rows.length) renderReviews(rows);
+}).catch(function(){
+  /* Keep the built-in fallback reviews already on screen. */
+});
+
+/* Order flow */
+var overlay = document.getElementById('overlay');
+var formView = document.getElementById('formView');
+var successView = document.getElementById('successView');
+var selName = document.getElementById('selName');
+var selMeta = document.getElementById('selMeta');
+var current = null;
+
+function openOrder(id){
+  current = ACTIVE_PRODUCTS.filter(function(p){ return String(p.id) === String(id); })[0];
+  if(!current || !current.available) return;
+  selName.textContent = 'الاشتراك: ' + current.name + ' (' + current.en + ')';
+  if(selMeta) selMeta.textContent = current.durationLabel + ' • ' + priceText(current);
+  formView.style.display = 'block';
+  successView.style.display = 'none';
+  document.getElementById('formErr').style.display = 'none';
+  var sb = document.getElementById('submitBtn');
+  if(sb){ sb.disabled = false; sb.textContent = 'إرسال الطلب — الدفع بعد التفعيل'; }
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeOrder(){
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+grid.addEventListener('click', function(e){
+  var btn = e.target.closest('[data-order]');
+  if(btn) openOrder(btn.getAttribute('data-order'));
+});
+document.getElementById('closeBtn').addEventListener('click', closeOrder);
+document.getElementById('doneBtn').addEventListener('click', closeOrder);
+overlay.addEventListener('click', function(e){ if(e.target === overlay) closeOrder(); });
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeOrder(); });
+
+document.getElementById('orderForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var email = document.getElementById('fEmail').value.trim();
+  var country = document.getElementById('fCountry').value.trim();
+  var whatsapp = document.getElementById('fWhatsapp').value.trim();
+  var notes = document.getElementById('fNotes').value.trim();
+  var payEl = document.querySelector('input[name="pay"]:checked');
+  var err = document.getElementById('formErr');
+  var submitBtn = document.getElementById('submitBtn');
+  var submitLabel = 'إرسال الطلب — الدفع بعد التفعيل';
+
+  function fail(msg){ err.textContent = msg; err.style.display = 'block'; }
+  if(!current) return fail('اختار اشتراك الأول.');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('من فضلك اكتب إيميل صحيح.');
+  if(country.length < 2) return fail('من فضلك اكتب الدولة اللي ساكن فيها حالياً.');
+  if(whatsapp.replace(/[^\d]/g,'').length < 7) return fail('من فضلك اكتب رقم واتساب صحيح بكود الدولة.');
+  if(!payEl) return fail('من فضلك اختار طريقة الدفع (هتدفع بيها بعد التفعيل).');
+  err.style.display = 'none';
+
+  var payload = {
+    access_key: WEB3FORMS_KEY,
+    subject: 'طلب جديد من متجر AI Expert',
+    from_name: 'AI Expert Store',
+    replyto: email,
+    botcheck: false,
+    subscription: current.name + ' (' + current.en + ') — ' + current.durationLabel,
+    price: priceText(current),
+    email: email,
+    country: country,
+    whatsapp: whatsapp,
+    payment_method: payEl.value,
+    notes: notes || ''
+  };
+
+  var orderRow = {
+    subscription_name: current.name,
+    price: (current.price === null || current.price === undefined) ? 0 : Number(current.price),
+    customer_email: email,
+    country: country,
+    whatsapp: whatsapp,
+    payment_method: payEl.value,
+    notes: notes || ''
+  };
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'جاري إرسال الطلب...';
+
+  /* Save a copy of the order in Supabase in the background, alongside the
+     Web3Forms email. This never blocks or changes the customer flow:
+     success and error stay governed by the Web3Forms result below. */
+  fetch(SUPABASE_ORDERS_URL, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify(orderRow)
+  }).catch(function(){
+    /* Background save only — ignore failures so the customer is unaffected. */
+  });
+
+  fetch('https://api.web3forms.com/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload)
+  }).then(function(res){ return res.json(); }).then(function(data){
+    if(data && data.success){
+      formView.style.display = 'none';
+      successView.style.display = 'block';
+      var modalBox = overlay.querySelector('.modal');
+      if(modalBox) modalBox.scrollTop = 0;
+      document.getElementById('orderForm').reset();
+    } else {
+      fail('حصلت مشكلة في إرسال الطلب. من فضلك اتأكد من اتصالك بالإنترنت وحاول تاني.');
+    }
+  }).catch(function(){
+    fail('حصلت مشكلة في إرسال الطلب. من فضلك اتأكد من اتصالك بالإنترنت وحاول تاني.');
+  }).then(function(){
+    submitBtn.disabled = false;
+    submitBtn.textContent = submitLabel;
+  });
+});
+</script>
+</body>
+</html>
