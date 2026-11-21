@@ -768,6 +768,7 @@
           '<div class="badges">' +
             (sub.available ? '<span class="badge badge-on">متاح</span>' : '<span class="badge badge-off">غير متاح</span>') +
             (sub.featured ? '<span class="badge badge-feat">★ مميز</span>' : '') +
+            (sub.pay_before ? '<span class="badge badge-feat">دفع قبل التفعيل</span>' : '') +
           '</div>' +
         '</div>' +
         '<div class="card-price">' +
@@ -789,6 +790,10 @@
               '<option value="شهري"' + (sub.duration === "شهري" ? " selected" : "") + '>شهري</option>' +
               '<option value="سنوي"' + (sub.duration === "سنوي" ? " selected" : "") + '>سنوي</option>' +
               '<option value="مدى الحياة"' + (sub.duration === "مدى الحياة" ? " selected" : "") + '>مدى الحياة</option>' +
+            '</select>') +
+          field("توقيت الدفع", '<select class="select" data-f="pay_before">' +
+              '<option value="after"' + (!sub.pay_before ? " selected" : "") + '>الدفع بعد التفعيل</option>' +
+              '<option value="before"' + (sub.pay_before ? " selected" : "") + '>الدفع قبل التفعيل</option>' +
             '</select>') +
           field("اللون", '<div class="color-row"><input type="color" data-f="colorPicker" value="' + esc(color) + '" aria-label="اختيار اللون" /><input class="input" data-f="color" type="text" value="' + esc(color) + '" placeholder="#2563EB" /></div>') +
           field("الأيقونة <span class=\'hint\'>(رمز أو إيموجي قصير)</span>", '<input class="input" data-f="icon" type="text" maxlength="4" value="' + esc(sub.icon || "") + '" placeholder="✦" />') +
@@ -906,7 +911,8 @@
       icon: getVal(card, "icon").trim() || "✦",
       sort: sortRaw === "" ? 99 : parseInt(sortRaw, 10),
       available: getChecked(card, "available"),
-      featured: getChecked(card, "featured")
+      featured: getChecked(card, "featured"),
+      pay_before: getVal(card, "pay_before") === "before"
     };
 
     if (!payload.name){
@@ -956,7 +962,8 @@
       icon: "✦",
       sort: maxSort + 1,
       available: false,
-      featured: false
+      featured: false,
+      pay_before: false
     };
     var btns = [$("addBtn"), $("addBtnEmpty")];
     btns.forEach(function(b){ if (b) b.disabled = true; });

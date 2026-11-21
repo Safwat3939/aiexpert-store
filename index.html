@@ -152,7 +152,7 @@ footer a{font-weight:700}
 </section>
 
 <main class="section wrap" id="products" style="padding-top:6px">
-  <div class="section-head"><h2>الاشتراكات المتاحة</h2><p>الأسعار والمدة محدّثة من المتجر — والتفعيل على واتسابك، والدفع بعد التفعيل</p></div>
+  <div class="section-head"><h2>الاشتراكات المتاحة</h2><p>الأسعار والمدة محدّثة من المتجر — والتفعيل على واتسابك، وتوقيت الدفع مكتوب على كل اشتراك</p></div>
   <div class="grid" id="grid"></div>
 </main>
 
@@ -164,7 +164,7 @@ footer a{font-weight:700}
 <section class="section wrap">
   <div class="section-head"><h2>أسئلة شائعة</h2></div>
   <div class="faq">
-    <details><summary>متى أدفع؟</summary><p>الدفع بعد التفعيل دائماً. هنفعّل اشتراكك على واتسابك الأول ونتأكد معاك إنه شغال، وبعدها تدفع بالطريقة اللي اخترتها في الطلب.</p></details>
+    <details><summary>متى أدفع؟</summary><p>توقيت الدفع مكتوب على كل اشتراك: أغلب اشتراكاتنا الدفع فيها بعد التفعيل — هنفعّل اشتراكك على واتسابك الأول ونتأكد معاك إنه شغال، وبعدها تدفع بالطريقة اللي اخترتها في الطلب. وبعض الاشتراكات الدفع فيها قبل التفعيل، وده بيبقى مكتوب عليها بوضوح قبل ما تطلب.</p></details>
     <details><summary>إيه طرق الدفع المتاحة؟</summary><p>فودافون كاش، Binance، PayPal، وبنكك في السودان. اختار الطريقة المناسبة لك وانت بتطلب، وهتستخدمها بعد التفعيل.</p></details>
     <details><summary>التفعيل بيتم إزاي؟</summary><p>التفعيل بيتم على رقم الواتساب اللي سجّلته في الطلب — هنبعت لك عليه خطوات التفعيل والتأكيد وكل التفاصيل. الإيميل اللي كتبته بيكون ضمن بيانات طلبك للتواصل والمتابعة.</p></details>
     <details><summary>طلباتي بتوصلكم إزاي؟</summary><p>لما تدوس «إرسال الطلب»، طلبك بيتبعت مباشرة من الموقع للمتجر بكل بياناتك: الاشتراك، إيميلك، دولتك، طريقة الدفع، ورقم واتسابك — من غير ما تحتاج تفتح إيميلك أو تبعت حاجة بنفسك. صاحب المتجر هيتواصل معاك بعدها على واتسابك وإيميلك لبدء التفعيل.</p></details>
@@ -202,7 +202,7 @@ footer a{font-weight:700}
           <input type="tel" id="fWhatsapp" placeholder="+20 1xxxxxxxxx" autocomplete="tel" required dir="ltr" style="text-align:left">
         </div>
         <div class="field">
-          <label>طريقة الدفع <small>(هتدفع بيها بعد التفعيل)</small></label>
+          <label>طريقة الدفع <small id="payHint">(هتدفع بيها بعد التفعيل)</small></label>
           <div class="pay-grid">
             <label class="pay-opt"><input type="radio" name="pay" value="فودافون كاش"><span>فودافون كاش</span></label>
             <label class="pay-opt"><input type="radio" name="pay" value="Binance"><span>Binance</span></label>
@@ -214,7 +214,7 @@ footer a{font-weight:700}
           <label for="fNotes">ملحوظة إضافية <small>(اختياري)</small></label>
           <textarea id="fNotes" rows="2" placeholder="أي تفاصيل تحب تضيفها…"></textarea>
         </div>
-        <div class="form-note">🛡️ الدفع بعد التفعيل: مش هتدفع أي حاجة دلوقتي. هنفعّل الاشتراك على واتسابك ونأكّد معاك الأول، وبعدها تدفع بطريقتك المختارة.</div>
+        <div class="form-note" id="payNote">🛡️ الدفع بعد التفعيل: مش هتدفع أي حاجة دلوقتي. هنفعّل الاشتراك على واتسابك ونأكّد معاك الأول، وبعدها تدفع بطريقتك المختارة.</div>
         <p class="err" id="formErr"></p>
         <button type="submit" class="btn btn-primary" id="submitBtn" style="width:100%">إرسال الطلب — الدفع بعد التفعيل</button>
       </form>
@@ -296,9 +296,9 @@ function renderProducts(list){
     var chips = '<span class="chip">'+p.durationLabel+'</span><span class="chip">'+p.category+'</span>';
     if(p.featured) chips += '<span class="chip badge-featured">⭐ مميز</span>';
     if(!p.available) chips += '<span class="chip badge-unavail">غير متاح حالياً</span>';
-    else chips += '<span class="chip pay">الدفع بعد التفعيل</span><span class="chip">التفعيل على واتساب</span>';
+    else chips += '<span class="chip pay">'+(p.payBefore ? 'الدفع قبل التفعيل' : 'الدفع بعد التفعيل')+'</span><span class="chip">التفعيل على واتساب</span>';
     var btn = p.available
-      ? '<button type="button" class="btn btn-primary" data-order="'+p.id+'">اطلب دلوقتي — الدفع بعد التفعيل</button>'
+      ? '<button type="button" class="btn btn-primary" data-order="'+p.id+'">اطلب دلوقتي — '+(p.payBefore ? 'الدفع قبل التفعيل' : 'الدفع بعد التفعيل')+'</button>'
       : '<button type="button" class="btn btn-disabled" disabled aria-disabled="true">غير متاح حالياً</button>';
     card.innerHTML =
       '<div class="card-top"><div class="logo" style="background:'+(p.color || '#0f6b4f')+'">'+(p.initial || '✦')+'</div>' +
@@ -332,6 +332,7 @@ function mapSupabaseRow(r){
     currency: r.currency || 'ج.م',
     available: r.available !== false,
     featured: !!r.featured,
+    payBefore: !!r.pay_before,
     color: r.color || '#0f6b4f',
     initial: r.icon || '✦',
     desc: r.description || '',
@@ -422,11 +423,17 @@ function openOrder(id){
   if(!current || !current.available) return;
   selName.textContent = 'الاشتراك: ' + current.name + ' (' + current.en + ')';
   if(selMeta) selMeta.textContent = current.durationLabel + ' • ' + priceText(current);
+  var payNote = document.getElementById('payNote');
+  if(payNote) payNote.textContent = current.payBefore
+    ? '💳 الدفع قبل التفعيل لهذا الاشتراك: بعد إرسال الطلب هنتواصل معاك على واتساب لإتمام الدفع بطريقتك المختارة، وبعدها يوصلك التفعيل على طول.'
+    : '🛡️ الدفع بعد التفعيل: مش هتدفع أي حاجة دلوقتي. هنفعّل الاشتراك على واتسابك ونأكّد معاك الأول، وبعدها تدفع بطريقتك المختارة.';
+  var payHint = document.getElementById('payHint');
+  if(payHint) payHint.textContent = current.payBefore ? '(هتدفع بيها قبل التفعيل)' : '(هتدفع بيها بعد التفعيل)';
   formView.style.display = 'block';
   successView.style.display = 'none';
   document.getElementById('formErr').style.display = 'none';
   var sb = document.getElementById('submitBtn');
-  if(sb){ sb.disabled = false; sb.textContent = 'إرسال الطلب — الدفع بعد التفعيل'; }
+  if(sb){ sb.disabled = false; sb.textContent = 'إرسال الطلب — ' + (current.payBefore ? 'الدفع قبل التفعيل' : 'الدفع بعد التفعيل'); }
   overlay.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -452,14 +459,14 @@ document.getElementById('orderForm').addEventListener('submit', function(e){
   var payEl = document.querySelector('input[name="pay"]:checked');
   var err = document.getElementById('formErr');
   var submitBtn = document.getElementById('submitBtn');
-  var submitLabel = 'إرسال الطلب — الدفع بعد التفعيل';
+  var submitLabel = 'إرسال الطلب — ' + (current && current.payBefore ? 'الدفع قبل التفعيل' : 'الدفع بعد التفعيل');
 
   function fail(msg){ err.textContent = msg; err.style.display = 'block'; }
   if(!current) return fail('اختار اشتراك الأول.');
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('من فضلك اكتب إيميل صحيح.');
   if(country.length < 2) return fail('من فضلك اكتب الدولة اللي ساكن فيها حالياً.');
   if(whatsapp.replace(/[^\d]/g,'').length < 7) return fail('من فضلك اكتب رقم واتساب صحيح بكود الدولة.');
-  if(!payEl) return fail('من فضلك اختار طريقة الدفع (هتدفع بيها بعد التفعيل).');
+  if(!payEl) return fail('من فضلك اختار طريقة الدفع.');
   err.style.display = 'none';
 
   var payload = {
@@ -474,6 +481,7 @@ document.getElementById('orderForm').addEventListener('submit', function(e){
     country: country,
     whatsapp: whatsapp,
     payment_method: payEl.value,
+    payment_timing: current.payBefore ? 'الدفع قبل التفعيل' : 'الدفع بعد التفعيل',
     notes: notes || ''
   };
 
@@ -512,6 +520,10 @@ document.getElementById('orderForm').addEventListener('submit', function(e){
     body: JSON.stringify(payload)
   }).then(function(res){ return res.json(); }).then(function(data){
     if(data && data.success){
+      var st = document.getElementById('successText');
+      if(st) st.innerHTML = current && current.payBefore
+        ? 'تم استلام طلبك بنجاح! وصاحب المتجر هيتواصل معاك على <b>إيميلك وواتسابك</b> لإتمام <b>الدفع قبل التفعيل</b> بالطريقة اللي اخترتها، وبعدها يوصلك التفعيل على طول.<br><br>تقدر تكمل تصفّح الموقع عادي في أي وقت.'
+        : 'تم استلام طلبك بنجاح! وصاحب المتجر هيتواصل معاك على <b>إيميلك وواتسابك</b> للتفعيل — <b>الدفع بعد التفعيل</b> بالطريقة اللي اخترتها، مش قبل.<br><br>تقدر تكمل تصفّح الموقع عادي في أي وقت.';
       formView.style.display = 'none';
       successView.style.display = 'block';
       var modalBox = overlay.querySelector('.modal');
