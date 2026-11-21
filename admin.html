@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="light dark" />
 <link rel="icon" href="data:," />
-<title>لوحة تحكم AI Expert — إدارة الاشتراكات</title>
+<title>AI Expert — دخول</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Cairo:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -361,23 +361,18 @@
     <div class="auth-brand">
       <div class="auth-mark">AI</div>
       <div>
-        <h1>لوحة تحكم AI Expert</h1>
-        <p>إدارة الاشتراكات والأسعار</p>
+        <h1>AI Expert</h1>
+        <p>تسجيل الدخول</p>
       </div>
     </div>
-    <p class="auth-sub">سجّل دخولك بحساب الأدمين عشان تعدّل الاشتراكات — أي تعديل تحفظه هنا يظهر فوراً في المتجر.</p>
-
-    <div class="auth-tabs" role="tablist" aria-label="وضع الدخول">
-      <button type="button" id="tabSignin" class="active">تسجيل الدخول</button>
-      <button type="button" id="tabSignup">إنشاء حساب الأدمين</button>
-    </div>
+    <p class="auth-sub">سجّل دخولك للمتابعة.</p>
 
     <div id="authMsg" class="msg" role="alert"></div>
 
     <form id="authForm" class="auth-form" novalidate style="margin-top:18px">
       <div class="field">
         <label for="authEmail">البريد الإلكتروني</label>
-        <input class="input" type="email" id="authEmail" name="email" dir="ltr" style="text-align:left" autocomplete="email" placeholder="admin@example.com" required />
+        <input class="input" type="email" id="authEmail" name="email" dir="ltr" style="text-align:left" autocomplete="email" placeholder="name@example.com" required />
       </div>
       <div class="field">
         <label for="authPassword">كلمة السر</label>
@@ -385,7 +380,6 @@
       </div>
       <button type="submit" class="btn btn-primary btn-block" id="authSubmit">تسجيل الدخول</button>
     </form>
-    <p class="auth-note" id="authNote">وضع «إنشاء حساب الأدمين» يُستخدم أول مرة فقط لإنشاء الحساب، وبعدها سجّل دخولك بنفس البيانات.</p>
   </div>
 </div>
 
@@ -564,9 +558,6 @@
     failBtn.disabled = false;
     failBtn.addEventListener("click", function(ev){ ev.preventDefault(); location.reload(); });
     document.getElementById("authForm").addEventListener("submit", function(ev){ ev.preventDefault(); location.reload(); });
-    var tIn = document.getElementById("tabSignin"), tUp = document.getElementById("tabSignup");
-    tIn.addEventListener("click", function(){ tIn.classList.add("active"); tUp.classList.remove("active"); });
-    tUp.addEventListener("click", function(){ tUp.classList.add("active"); tIn.classList.remove("active"); });
     return;
   }
 
@@ -577,7 +568,7 @@
   var authView = $("authView"), adminView = $("adminView");
   var authMsg = $("authMsg"), pageMsg = $("pageMsg");
   var authForm = $("authForm"), authEmail = $("authEmail"), authPassword = $("authPassword");
-  var authSubmit = $("authSubmit"), tabSignin = $("tabSignin"), tabSignup = $("tabSignup"), authNote = $("authNote");
+  var authSubmit = $("authSubmit");
   var cardsWrap = $("cardsWrap"), listLoading = $("listLoading"), emptyState = $("emptyState"), noResults = $("noResults");
   var statsRow = $("statsRow"), searchInput = $("searchInput"), toastEl = $("toast");
   var deleteModal = $("deleteModal"), deleteName = $("deleteName");
@@ -618,7 +609,7 @@
   function translateError(err){
     var m = (err && err.message) ? err.message : String(err || "حدث خطأ غير متوقع");
     if (/invalid login credentials/i.test(m)) return "بيانات الدخول غير صحيحة — تأكد من الإيميل وكلمة السر.";
-    if (/already registered|already exists/i.test(m)) return "هذا الإيميل مسجل بالفعل — جرّب «تسجيل الدخول» بدلاً من إنشاء حساب.";
+    if (/already registered|already exists/i.test(m)) return "هذا الإيميل مسجل بالفعل — جرّب «تسجيل الدخول».";
     if (/password should be at least/i.test(m)) return "كلمة السر قصيرة — لازم تكون 6 حروف على الأقل (ويُفضّل أطول).";
     if (/invalid email|unable to validate email/i.test(m)) return "صيغة الإيميل غير صحيحة — راجع الإيميل وحاول مرة أخرى.";
     if (/email not confirmed/i.test(m)) return "الإيميل لم يتم تأكيده بعد — افتح إيميلك واضغط رابط التأكيد، ثم سجّل دخولك.";
@@ -645,20 +636,6 @@
   }
 
   /* ---------- Auth UI ---------- */
-  function setMode(next){
-    mode = next;
-    tabSignin.classList.toggle("active", mode === "signin");
-    tabSignup.classList.toggle("active", mode === "signup");
-    authSubmit.textContent = mode === "signin" ? "تسجيل الدخول" : "إنشاء حساب الأدمين";
-    authPassword.setAttribute("autocomplete", mode === "signin" ? "current-password" : "new-password");
-    authNote.textContent = mode === "signin"
-      ? "ليس لديك حساب بعد؟ اختر «إنشاء حساب الأدمين» من الأعلى — يُستخدم أول مرة فقط."
-      : "بعد إنشاء الحساب قد يصلك إيميل تأكيد — فعّله ثم سجّل دخولك بنفس البيانات.";
-    hideMsg(authMsg);
-  }
-  tabSignin.addEventListener("click", function(){ setMode("signin"); });
-  tabSignup.addEventListener("click", function(){ setMode("signup"); });
-
   authForm.addEventListener("submit", function(ev){
     ev.preventDefault();
     hideMsg(authMsg);
@@ -672,9 +649,7 @@
     var original = authSubmit.textContent;
     authSubmit.textContent = "جارٍ التنفيذ…";
 
-    var promise = mode === "signin"
-      ? sb.auth.signInWithPassword({ email: email, password: password })
-      : sb.auth.signUp({ email: email, password: password });
+    var promise = sb.auth.signInWithPassword({ email: email, password: password });
 
     promise.then(function(res){
       authSubmit.disabled = false;
@@ -683,13 +658,7 @@
         showMsg(authMsg, translateError(res.error), "error");
         return;
       }
-      if (mode === "signup" && !res.data.session){
-        showMsg(authMsg, "تم إنشاء الحساب بنجاح. إذا وصلك إيميل تأكيد فعّله أولاً، ثم سجّل دخولك بنفس البيانات.", "success");
-        setMode("signin");
-        authEmail.value = email;
-        return;
-      }
-      showMsg(authMsg, mode === "signup" ? "تم إنشاء الحساب وتسجيل الدخول بنجاح." : "تم تسجيل الدخول بنجاح.", "success");
+      showMsg(authMsg, "تم تسجيل الدخول بنجاح.", "success");
       // onAuthStateChange / session check will switch the view
       enterAdmin(res.data.user || (res.data.session && res.data.session.user));
     }).catch(function(err){
