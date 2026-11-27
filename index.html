@@ -233,6 +233,18 @@ var WEB3FORMS_KEY = "b24793c9-05fa-4d4b-8a3b-cee194b14c6a";
 
 var SUPABASE_URL = "https://rbmfdxfypfmsfgeuolmb.supabase.co/rest/v1/subscriptions?select=*&order=sort.asc";
 var SUPABASE_ORDERS_URL = "https://rbmfdxfypfmsfgeuolmb.supabase.co/rest/v1/orders";
+
+/* Referral (affiliate) links: a visitor arriving from ?ref=CODE is
+   remembered in this browser, so any later order is credited to the
+   marketer who shared the link. A newer link replaces an older code. */
+var REF_STORAGE_KEY = "aiexpert_ref";
+try {
+  var refParam = new URLSearchParams(window.location.search).get("ref");
+  if (refParam) localStorage.setItem(REF_STORAGE_KEY, refParam.trim().toLowerCase());
+} catch (e) {}
+function currentRefCode(){
+  try { return localStorage.getItem(REF_STORAGE_KEY) || ""; } catch (e) { return ""; }
+}
 var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJibWZkeGZ5cGZtc2ZnZXVvbG1iIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTUyMTI5MjcsImV4cCI6MjExMDc4ODkyN30.90sTMecDO_pZ-YsVkGvAPD6hbC4Newp9MW5LZNqxbnU";
 
 var PRODUCTS = [
@@ -482,6 +494,7 @@ document.getElementById('orderForm').addEventListener('submit', function(e){
     whatsapp: whatsapp,
     payment_method: payEl.value,
     payment_timing: current.payBefore ? 'الدفع قبل التفعيل' : 'الدفع بعد التفعيل',
+    referral_code: currentRefCode() || 'مباشر — بدون مسوّق',
     notes: notes || ''
   };
 
@@ -492,6 +505,7 @@ document.getElementById('orderForm').addEventListener('submit', function(e){
     country: country,
     whatsapp: whatsapp,
     payment_method: payEl.value,
+    ref_code: currentRefCode() || null,
     notes: notes || ''
   };
 
@@ -501,16 +515,27 @@ document.getElementById('orderForm').addEventListener('submit', function(e){
   /* Save a copy of the order in Supabase in the background, alongside the
      Web3Forms email. This never blocks or changes the customer flow:
      success and error stay governed by the Web3Forms result below. */
-  fetch(SUPABASE_ORDERS_URL, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    },
-    body: JSON.stringify(orderRow)
-  }).catch(function(){
+  function saveOrderRow(row){
+    return fetch(SUPABASE_ORDERS_URL, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(row)
+    }).then(function(res){
+      /* If the ref_code column is not in the database yet, retry without
+         it so the order itself is never lost. */
+      if (!res.ok && row.ref_code){
+        var copy = {};
+        for (var k in row){ if (k !== 'ref_code') copy[k] = row[k]; }
+        return saveOrderRow(copy);
+      }
+    });
+  }
+  saveOrderRow(orderRow).catch(function(){
     /* Background save only — ignore failures so the customer is unaffected. */
   });
 

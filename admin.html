@@ -404,6 +404,7 @@
       <button type="button" id="tabSubs" class="active">الاشتراكات</button>
       <button type="button" id="tabOrders">الطلبات والتحليلات<span class="tab-count hidden" id="ordersTabCount"></span></button>
       <button type="button" id="tabReviews">التقييمات<span class="tab-count hidden" id="reviewsTabCount"></span></button>
+      <button type="button" id="tabRefs">المسوّقين<span class="tab-count hidden" id="refsTabCount"></span></button>
     </nav>
 
     <div id="subsSection">
@@ -480,6 +481,31 @@
       <div id="reviewsEmpty" class="empty hidden">
         <h2>لا توجد تقييمات بعد</h2>
         <p>أضف أول تقييم من النموذج بالأعلى وسيظهر في المتجر فوراً.</p>
+      </div>
+    </div>
+
+    <div id="refsSection" class="hidden">
+      <form class="review-form" id="refForm">
+        <h2>إضافة مسوّق جديد</h2>
+        <div class="rf-grid">
+          <div class="field"><label for="refName">اسم المسوّق *</label><input class="input" id="refName" type="text" placeholder="مثال: أحمد محمد" /></div>
+          <div class="field"><label for="refCode">كود الرابط</label><input class="input" id="refCode" type="text" placeholder="اتركه فاضياً وسيتولد تلقائياً — أو اكتب كوداً قصيراً مثل ahmed" /></div>
+          <div class="field"><label for="refPercent">نسبة العمولة % *</label><input class="input" id="refPercent" type="number" min="0" max="100" step="0.5" value="10" /></div>
+        </div>
+        <button type="submit" class="btn btn-primary" id="refAddBtn">＋ إضافة المسوّق</button>
+        <p style="color:var(--muted);font-size:13px;margin-top:10px">رابط المسوّق بيكون: https://aiexpert.dpdns.org/?ref=الكود — أي عميل يدخل من الرابط ويطلب، الطلب بيتنسب للمسوّق تلقائياً (حتى لو طلب بعد أيام من نفس المتصفح)، وبيظهر الكود في إيميل الطلب وفي إحصائيات المسوّق هنا.</p>
+      </form>
+
+      <div class="orders-head">
+        <h2>المسوّقين وعمولاتهم</h2>
+        <button type="button" class="btn btn-ghost btn-sm" id="refreshRefsBtn">↻ تحديث</button>
+      </div>
+      <div id="refsMsg" class="msg page-msg" role="alert"></div>
+      <div id="refsLoading" class="loading hidden"><div class="spinner"></div>جارٍ تحميل المسوّقين من قاعدة البيانات…</div>
+      <div id="refsWrap" class="cards"></div>
+      <div id="refsEmpty" class="empty hidden">
+        <h2>لا يوجد مسوّقون بعد</h2>
+        <p>أضف أول مسوّق من النموذج بالأعلى وانسخ رابطه وادّيه له.</p>
       </div>
     </div>
   </main>
@@ -572,8 +598,8 @@
   var cardsWrap = $("cardsWrap"), listLoading = $("listLoading"), emptyState = $("emptyState"), noResults = $("noResults");
   var statsRow = $("statsRow"), searchInput = $("searchInput"), toastEl = $("toast");
   var deleteModal = $("deleteModal"), deleteName = $("deleteName");
-  var tabSubs = $("tabSubs"), tabOrders = $("tabOrders"), tabReviews = $("tabReviews");
-  var subsSection = $("subsSection"), ordersSection = $("ordersSection"), reviewsSection = $("reviewsSection");
+  var tabSubs = $("tabSubs"), tabOrders = $("tabOrders"), tabReviews = $("tabReviews"), tabRefs = $("tabRefs");
+  var subsSection = $("subsSection"), ordersSection = $("ordersSection"), reviewsSection = $("reviewsSection"), refsSection = $("refsSection");
   var ordersMsg = $("ordersMsg"), ordersLoading = $("ordersLoading"), ordersWrap = $("ordersWrap"), ordersEmpty = $("ordersEmpty");
   var analyticsGrid = $("analyticsGrid"), ordersTabCount = $("ordersTabCount");
   var deleteOrderModal = $("deleteOrderModal"), deleteOrderName = $("deleteOrderName");
@@ -1025,21 +1051,25 @@
 
   /* ---------- Tabs ---------- */
   function switchTab(which){
-    var isSubs = which === "subs", isOrders = which === "orders", isReviews = which === "reviews";
+    var isSubs = which === "subs", isOrders = which === "orders", isReviews = which === "reviews", isRefs = which === "refs";
     tabSubs.classList.toggle("active", isSubs);
     tabOrders.classList.toggle("active", isOrders);
     tabReviews.classList.toggle("active", isReviews);
+    tabRefs.classList.toggle("active", isRefs);
     subsSection.classList.toggle("hidden", !isSubs);
     ordersSection.classList.toggle("hidden", !isOrders);
     reviewsSection.classList.toggle("hidden", !isReviews);
+    refsSection.classList.toggle("hidden", !isRefs);
     $("addBtn").classList.toggle("hidden", !isSubs);
     if (isOrders && !ordersLoaded) loadOrders();
     if (isOrders) loadVisitors();
     if (isReviews && !reviewsLoaded) loadReviews();
+    if (isRefs && !refsLoaded) loadReferrers();
   }
   tabSubs.addEventListener("click", function(){ switchTab("subs"); });
   tabOrders.addEventListener("click", function(){ switchTab("orders"); });
   tabReviews.addEventListener("click", function(){ switchTab("reviews"); });
+  tabRefs.addEventListener("click", function(){ switchTab("refs"); });
 
   /* ---------- Orders: field mapping (tolerant to column naming) ---------- */
   function pick(o, keys){
@@ -1438,6 +1468,142 @@
         grid.innerHTML = '<div class="stat"><span>زوار المتجر</span><b>—</b><span class="stat-sub">تعذّر تحميل إحصائيات الزوار</span></div>';
       });
   }
+
+  /* ---------- Referrers (affiliate marketers) ---------- */
+  var referrers = [];
+  var refsLoaded = false;
+  var refStats = {};
+  var refsMsg = $("refsMsg"), refsLoading = $("refsLoading"), refsWrap = $("refsWrap"), refsEmpty = $("refsEmpty"), refsTabCount = $("refsTabCount");
+  var STORE_BASE = "https://aiexpert.dpdns.org/";
+
+  function refLink(code){ return STORE_BASE + "?ref=" + encodeURIComponent(code); }
+
+  function loadReferrers(){
+    refsLoading.classList.remove("hidden");
+    hideMsg(refsMsg);
+    return sb.from("referrers").select("*").order("created_at", { ascending: true })
+      .then(function(res){
+        if (res.error) throw res.error;
+        referrers = res.data || [];
+        return sb.from("orders").select("ref_code,price");
+      })
+      .then(function(res2){
+        refsLoading.classList.add("hidden");
+        refStats = {};
+        if (!res2.error){
+          (res2.data || []).forEach(function(o){
+            var c = o.ref_code;
+            if (!c) return;
+            if (!refStats[c]) refStats[c] = { count: 0, total: 0 };
+            refStats[c].count += 1;
+            refStats[c].total += Number(o.price) || 0;
+          });
+        }
+        refsLoaded = true;
+        renderReferrers();
+      })
+      .catch(function(err){
+        refsLoading.classList.add("hidden");
+        if (/referrers/.test(err && err.message || "") && /does not exist|relation|schema cache/i.test(err.message || "")){
+          showMsg(refsMsg, "جدول المسوّقين مش موجود في قاعدة البيانات لسه — شغّل ملف referrals-setup.sql مرة واحدة من Supabase (SQL Editor) وبعدين حدّث الصفحة.", "error");
+        } else {
+          toast("تعذّر تحميل المسوّقين: " + translateError(err), true);
+        }
+      });
+  }
+
+  function renderReferrers(){
+    refsWrap.innerHTML = "";
+    if (referrers.length){
+      refsTabCount.textContent = referrers.length;
+      refsTabCount.classList.remove("hidden");
+    } else {
+      refsTabCount.classList.add("hidden");
+    }
+    refsEmpty.classList.toggle("hidden", referrers.length > 0);
+    referrers.forEach(function(r){
+      var st = refStats[r.code] || { count: 0, total: 0 };
+      var commission = st.total * (Number(r.percent) || 0) / 100;
+      var link = refLink(r.code);
+      var card = document.createElement("article");
+      card.className = "card";
+      card.innerHTML =
+        '<div class="review-card-body">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">' +
+            '<div><b>' + esc(r.name) + '</b> — عمولة ' + esc(r.percent) + '%</div>' +
+            '<button type="button" class="btn btn-danger" data-del-ref="' + r.id + '">حذف</button>' +
+          '</div>' +
+          '<div style="margin:10px 0;direction:ltr;text-align:left"><code style="word-break:break-all">' + esc(link) + '</code></div>' +
+          '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+            '<button type="button" class="btn btn-primary btn-sm" data-copy-ref="' + esc(link) + '">📋 نسخ الرابط</button>' +
+          '</div>' +
+          '<div class="review-who" style="margin-top:10px">طلبات من رابطه: <b>' + st.count + '</b> • إجمالي مبيعات: <b>' + fmtPrice(st.total) + ' ج.م</b> • عمولته المستحقة: <b>' + fmtPrice(Math.round(commission * 100) / 100) + ' ج.م</b></div>' +
+        '</div>';
+      refsWrap.appendChild(card);
+    });
+  }
+
+  refsWrap.addEventListener("click", function(e){
+    var copyBtn = e.target.closest("[data-copy-ref]");
+    if (copyBtn){
+      var link = copyBtn.getAttribute("data-copy-ref");
+      function done(){ toast("اتنسخ رابط المسوّق ✅"); }
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(link).then(done).catch(function(){ toast("انسخ الرابط يدوياً: " + link, true); });
+      } else { toast("انسخ الرابط يدوياً: " + link, true); }
+      return;
+    }
+    var delBtn = e.target.closest("[data-del-ref]");
+    if (delBtn){
+      if (delBtn.getAttribute("data-confirm") === "1"){
+        var id = delBtn.getAttribute("data-del-ref");
+        delBtn.disabled = true;
+        sb.from("referrers").delete().eq("id", id).then(function(res){
+          if (res.error) throw res.error;
+          toast("اتحذف المسوّق.");
+          refsLoaded = false;
+          loadReferrers();
+        }).catch(function(err){
+          delBtn.disabled = false;
+          toast("تعذّر الحذف: " + translateError(err), true);
+        });
+      } else {
+        delBtn.setAttribute("data-confirm", "1");
+        delBtn.textContent = "متأكد؟ احذف نهائياً";
+        setTimeout(function(){ delBtn.removeAttribute("data-confirm"); delBtn.textContent = "حذف"; }, 3000);
+      }
+    }
+  });
+
+  $("refreshRefsBtn").addEventListener("click", function(){ refsLoaded = false; loadReferrers(); });
+
+  $("refForm").addEventListener("submit", function(e){
+    e.preventDefault();
+    var name = $("refName").value.trim();
+    var code = $("refCode").value.trim().toLowerCase().replace(/[^a-z0-9_-]/g, "");
+    var percent = Number($("refPercent").value);
+    if (!name){ toast("اكتب اسم المسوّق أولاً.", true); return; }
+    if (isNaN(percent) || percent < 0 || percent > 100){ toast("اكتب نسبة عمولة صحيحة بين 0 و100.", true); return; }
+    if (!code){
+      code = "";
+      var chars = "abcdefghjkmnpqrstuvwxyz23456789";
+      for (var i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    var btn = $("refAddBtn");
+    btn.disabled = true;
+    sb.from("referrers").insert({ name: name, code: code, percent: percent }).then(function(res){
+      btn.disabled = false;
+      if (res.error) throw res.error;
+      $("refName").value = ""; $("refCode").value = "";
+      toast("اتضاف المسوّق «" + name + "» — رابطه جاهز للنسخ من القائمة تحت ✅");
+      refsLoaded = false;
+      loadReferrers();
+    }).catch(function(err){
+      btn.disabled = false;
+      if (/duplicate|unique/i.test(err.message || "")) toast("الكود ده مستخدم قبل كده — جرّب كود تاني.", true);
+      else toast("تعذّرت الإضافة: " + translateError(err), true);
+    });
+  });
 
   /* ---------- Session bootstrap ---------- */
   sb.auth.getSession().then(function(res){
